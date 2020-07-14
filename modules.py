@@ -58,13 +58,14 @@ class LT_procedures():
 			raw_years.append(a[2])
 			full_data_median.append(a[0])
 
+		#return print(np.array([full_data_median, actual_year, raw_years])[1][0])
 		output = np.array([full_data_median, actual_year, raw_years])
 
 		#we need the OUTPUT
 		dek_data = open('output_snack', 'wb') #to save whole data separated in dekads [n_locations, n_years, 36]. Only takes completed years
 		pickle.dump(output, dek_data)
 		dek_data.close()
-
+		
 ##############################################################################################################################################
 
 	def rainfall_accumulations(self):
@@ -72,9 +73,12 @@ class LT_procedures():
 		output_snack = pickle.load(open('output_snack', 'rb'))
 		yrs_window = np.arange(self.fst_year, self.lst_year, 1)
 
-		#to get the rainfall accumutaions for all years except for the current one
+		#return print(len(output_snack[1]))
+		
+		
+		#to get the rainfall accumulations for all years except for the current one
 		n = 0
-		skim = []
+		skim = [] #OUTPUT 1
 		for k in np.arange(0, len(output_snack[2]), 1):
 			remain = []
 			skim.append(remain)
@@ -89,7 +93,7 @@ class LT_procedures():
 
 		#to get the rainfall accumulation for current year in selected dekad window
 		n = 0 
-		acumulado_por_estacion = []
+		acumulado_por_estacion = [] #OUTPUT 2
 		for k in np.arange(0, len(output_snack[1]), 1):
 			acumulado_ano_actual = []
 			acumulado_por_estacion.append(acumulado_ano_actual)
@@ -100,23 +104,59 @@ class LT_procedures():
 				if len(acumulado_ano_actual) == len(np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1)):
 					n = 0
 
-		accumutaions = np.array(np.array(skim), np.array(acumulado_ano_actual))
+		skim = np.array(skim)
+		acumulado_por_estacion = np.array(acumulado_por_estacion)
+		#return print(np.array(acumulado_por_estacion).shape)
+		
+		output = np.array([skim, acumulado_por_estacion.transpose()])
 
-		return print(acumulado_ano_actual)
-
+		accumulation = open('accumulations', 'wb') #to save rainfall accumulations array [past_year_accum, current_year_accum]
+		pickle.dump(output, accumulation)
+		accumulation.close()
+		
 ##############################################################################################################################################
 ##############################################################################################################################################
 ##############################################################################################################################################
 
+class analog_years():
+	def __init__(self):
+
+		self.accumulations = np.array(pickle.load(open('accumulations', 'rb'))) #include accumulations vector
+		#current_yr_accum = accumulations[1].transpose()
+	def sum_error_sqr(self):
+		
+		#print(self.accumulations[1])
+		
+		
+		error_sqr = []
+		for i in np.arange(0, len(self.accumulations[0]), 1):
+			local_sums = []
+			error_sqr.append(local_sums)
+			for j in np.arange(0, len(self.accumulations[0][0]), 1):
+
+				sqr_error = (self.accumulations[1].transpose()[i][-1] - self.accumulations[0][i][j][-1])**2
+				local_sums.append(sqr_error)
+				#else:
+					#sqr_error = (self.accumulations[1][i][-1] - self.accumulations[0][i][j][-1])**2
+
+				#local_sums.append(sqr_error)
+
+		error_sqr = np.array(error_sqr)
+
+		return print(error_sqr[0])
+		
 
 
 
 
 
 
-sample = LT_procedures(1981, 2020, '1-Jan', '1-May')
-sample.get_median_for_whole_data()
-sample.rainfall_accumulations()
+sample =  analog_years()
+sample.sum_error_sqr()
+
+#sample = LT_procedures(1981, 2020, '1-Feb', '1-May')
+#sample.get_median_for_whole_data()
+#sample.rainfall_accumulations()
 
 
 
