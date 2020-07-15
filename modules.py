@@ -46,7 +46,7 @@ class LT_procedures():
 
 ##############################################################################################################################################
 
-	def get_median_for_whole_data(self): #to get the median for all location in a row
+	def get_median_for_whole_data(self): #to get the median for all location in-a-row
 
 		raw_years = [] #It'll be an array to store input data, but now in years
 		actual_year = []
@@ -74,8 +74,7 @@ class LT_procedures():
 		yrs_window = np.arange(self.fst_year, self.lst_year, 1)
 
 		#return print(len(output_snack[1]))
-		
-		
+	
 		#to get the rainfall accumulations for all years except for the current one
 		n = 0
 		skim = [] #OUTPUT 1
@@ -118,15 +117,19 @@ class LT_procedures():
 ##############################################################################################################################################
 ##############################################################################################################################################
 
-class analog_years():
-	def __init__(self):
+#A class dedicated to compute and get analog years
+class analog_years(LT_procedures): #we inherit LT_procedures class properties
+	#def __init__(self):
 
-		self.accumulations = np.array(pickle.load(open('accumulations', 'rb'))) #include accumulations vector
-		#current_yr_accum = accumulations[1].transpose()
-	def sum_error_sqr(self):
+	accumulations = np.array(pickle.load(open('accumulations', 'rb'))) #include accumulations vector
+	output_snack = pickle.load(open('output_snack', 'rb'))
+	
+
+##############################################################################################################################################
+
+	def sum_error_sqr(self): #computes the square of substraction between the biggest accumulations 
 		
-		#print(self.accumulations[1])
-		
+		#print(self.accumulations[1].transpose()[0])
 		
 		error_sqr = []
 		for i in np.arange(0, len(self.accumulations[0]), 1):
@@ -136,23 +139,59 @@ class analog_years():
 
 				sqr_error = (self.accumulations[1].transpose()[i][-1] - self.accumulations[0][i][j][-1])**2
 				local_sums.append(sqr_error)
-				#else:
-					#sqr_error = (self.accumulations[1][i][-1] - self.accumulations[0][i][j][-1])**2
 
-				#local_sums.append(sqr_error)
 
-		error_sqr = np.array(error_sqr)
+		error_sqr = np.array(error_sqr) #this is my output
+		
+		#return print(error_sqr[0])
 
-		return print(error_sqr[0])
+##############################################################################################################################################
+	
+	def sum_dekad_error(self):
+		
+		global_substraction = []
+		for i in np.arange(0, len(self.accumulations[0]), 1): #for each location in the array
+			mid_substraction = []
+			global_substraction.append(mid_substraction)
+			for j in np.arange(0, len(self.accumulations[0][0]), 1): #drive by each year 
+				spec_substraction = []
+				mid_substraction.append(spec_substraction)
+				for k in np.arange(0, len(self.accumulations[0][0][0])): #while visiting every dek from the chosen window by the user
+
+					a = self.output_snack[1][i][self.dek_dictionary[self.fst_dek]-1:self.dek_dictionary[self.lst_dek]] #current year for chosen dekads
+					b = self.output_snack[2][i][j][self.dek_dictionary[self.fst_dek]-1:self.dek_dictionary[self.lst_dek]] #raw past year for chosen dekads
+
+					subs_sqr = (a[k] - b[k])**2
+
+					#subs_sqr = (self.accumulations[1].transpose()[i][k] - self.accumulations[0][i][j][k])**2
+					spec_substraction.append(subs_sqr)
+
+		global_substraction = np.array(global_substraction) #[num_locations, num_years, num_dek]
+
+		#Let's compute the sub of each array 
+
+		total_sum = [] #this is my ultimate output
+		for i in np.arange(0, len(global_substraction), 1):
+			med_sum = []
+			total_sum.append(med_sum)
+			for j in np.arange(0, len(global_substraction[0]), 1):
+				sum_ex = np.sum(global_substraction[i][j]) #sum execution
+				med_sum.append(sum_ex)
+
+		total_sum = np.array(total_sum)
+
+
+
+		
+		return print(np.sort(total_sum[0]))
+				
 		
 
 
 
-
-
-
-sample =  analog_years()
+sample = analog_years(None, None, '1-Feb', '1-May')
 sample.sum_error_sqr()
+sample.sum_dekad_error()
 
 #sample = LT_procedures(1981, 2020, '1-Feb', '1-May')
 #sample.get_median_for_whole_data()

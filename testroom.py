@@ -7,4 +7,4 @@ from io import *
 
 output_snack = pickle.load(open('output_snack', 'rb'))
 
-print(output_snack[)
+print(output_snack[1][0])
