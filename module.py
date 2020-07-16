@@ -6,7 +6,6 @@ import pandas as pd
 from scipy.stats import rankdata
 
 
-#A class dedicated to compute long term avg. rainfall stats
 class LT_procedures(): 
 	def __init__(self, init_year, end_year, init_dek, end_dek):
 
@@ -15,7 +14,7 @@ class LT_procedures():
 		self.fst_year = init_year
 		self.lst_year = end_year
 		self.dek_dictionary = pickle.load(open('./datapath/dekads_dictionary', 'rb')) #a dictionary of dekads
-		self.raw_data = pickle.load(open('data_hg', 'rb')) #WHOLE RAW DATA
+		self.raw_data = pickle.load(open('data_dp', 'rb')) #WHOLE RAW DATA
 
 ##############################################################################################################################################
 
@@ -59,14 +58,14 @@ class LT_procedures():
 			raw_years.append(a[2])
 			full_data_median.append(a[0])
 
-		#output = np.array([full_data_median, actual_year, raw_years])
-		return np.array([full_data_median, actual_year, raw_years])
+		output = np.array([full_data_median, actual_year, raw_years])
 
-		#we need the OUTPUT
-		#dek_data = open('output_snack', 'wb') #to save whole data separated in dekads [n_locations, n_years, 36]. Only takes completed years
-		#pickle.dump(output, dek_data)
-		#dek_data.close()
-		
+		dek_data = open('./datapath/output_snack', 'wb') #to save whole data separated in dekads [n_locations, n_years, 36]. Only takes completed years
+		pickle.dump(output, dek_data)
+		dek_data.close()
+
+		return output # np.array([full_data_median, actual_year, raw_years])
+
 ##############################################################################################################################################
 
 	def rainfall_accumulations(self):
@@ -91,7 +90,7 @@ class LT_procedures():
 					if len(sumV) == len(np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1)):
 						n = 0
 
-		#auxilliar step to set accumulations as a dictionary where the password is their corresponding year
+		#auxilliar step to set accumulations as a dictionary, where the password is their corresponding years
 		skim = np.array(skim)
 
 		skim_dictionary = []
@@ -119,37 +118,26 @@ class LT_procedures():
 		output = np.array([skim, acumulado_por_estacion.transpose(), np.array(skim_dictionary)])
 
 
-		#accumulation = open('./datapath/accumulations', 'wb') #to save rainfall accumulations array as [past_years_accum, current_year_accum, past_years_dict]
-		#pickle.dump(output, accumulation)
-		#accumulation.close()
+		accumulation = open('./datapath/accumulations', 'wb') #to save rainfall accumulations array as [past_years_accum, current_year_accum, past_years_dict]
+		pickle.dump(output, accumulation)
+		accumulation.close()
 
 		return np.array([skim, acumulado_por_estacion.transpose(), np.array(skim_dictionary)])
 
-		
 ##############################################################################################################################################
-##############################################################################################################################################
-##############################################################################################################################################
-
-
-#A class dedicated to compute and get analog years
-class analog_years(LT_procedures): #we inherit LT_procedures class properties
-	#def __init__(self):
-
-	accumulations = LT_procedures(1985, 2019, '1-Feb', '1-May').rainfall_accumulations() #np.array(pickle.load(open('./datapath/accumulations', 'rb'))) #include accumulations vector
-	output_snack = LT_procedures(1985, 2019, '1-Feb', '1-May').get_median_for_whole_data() #pickle.load(open('output_snack', 'rb'))
+#ANALOG YEARS
 	
-##############################################################################################################################################
-
 	def sum_error_sqr(self): #computes the square of substraction between the biggest accumulations 
 		
+		accumulations = self.rainfall_accumulations()
 		#print(self.accumulations[1].transpose()[0])
 		error_sqr = []
-		for i in np.arange(0, len(self.accumulations[0]), 1):
+		for i in np.arange(0, len(accumulations[0]), 1):
 			local_sums = []
 			error_sqr.append(local_sums)
-			for j in np.arange(0, len(self.accumulations[0][0]), 1):
+			for j in np.arange(0, len(accumulations[0][0]), 1):
 
-				sqr_error = (self.accumulations[1].transpose()[i][-1] - self.accumulations[0][i][j][-1])**2
+				sqr_error = (accumulations[1].transpose()[i][-1] - accumulations[0][i][j][-1])**2
 				local_sums.append(sqr_error)
 
 		error_sqr = np.array(error_sqr) #this array must have a shape like [num_locations, num_years]
@@ -160,24 +148,26 @@ class analog_years(LT_procedures): #we inherit LT_procedures class properties
 			sum_error_sqr_rank.append(rank)
 
 		return np.array(sum_error_sqr_rank) #ULTIMATE OUTPUT
-		
-		#return print(sum_error_sqr_rank) #this array must have a shape like [num_locations, num_years]
 
 ##############################################################################################################################################
 
 	def sum_dekad_error(self):
+
+		accumulations = self.rainfall_accumulations()
+		output_snack = self.get_median_for_whole_data()
+
 		
 		global_substraction = []
-		for i in np.arange(0, len(self.accumulations[0]), 1): #for each location in the array
+		for i in np.arange(0, len(accumulations[0]), 1): #for each location in the array
 			mid_substraction = []
 			global_substraction.append(mid_substraction)
-			for j in np.arange(0, len(self.accumulations[0][0]), 1): #drive by each year 
+			for j in np.arange(0, len(accumulations[0][0]), 1): #drive by each year 
 				spec_substraction = []
 				mid_substraction.append(spec_substraction)
-				for k in np.arange(0, len(self.accumulations[0][0][0])): #while visiting every dek from the chosen window by the user
+				for k in np.arange(0, len(accumulations[0][0][0])): #while visiting every dek from the chosen window by the user
 
-					a = self.output_snack[1][i][self.dek_dictionary[self.fst_dek]-1:self.dek_dictionary[self.lst_dek]] #current year for chosen dekads
-					b = self.output_snack[2][i][j][self.dek_dictionary[self.fst_dek]-1:self.dek_dictionary[self.lst_dek]] #raw past year for chosen dekads
+					a = output_snack[1][i][self.dek_dictionary[self.fst_dek]-1:self.dek_dictionary[self.lst_dek]] #current year for chosen dekads
+					b = output_snack[2][i][j][self.dek_dictionary[self.fst_dek]-1:self.dek_dictionary[self.lst_dek]] #raw past year for chosen dekads
 
 					subs_sqr = (a[k] - b[k])**2
 					spec_substraction.append(subs_sqr)
@@ -202,10 +192,7 @@ class analog_years(LT_procedures): #we inherit LT_procedures class properties
 
 		return np.array(sum_dekad_error_rank) #ULTIMATE OUTPUT!
 
-		#return print(np.argsort(total_sum[0]))
-		#return print(rankdata(total_sum[0], method = 'ordinal'))
-
-##############################################################################################################################################
+##############################################################################################################################################	
 
 	def get_analog_years(self):
 
@@ -240,79 +227,15 @@ class analog_years(LT_procedures): #we inherit LT_procedures class properties
 		export = open('./datapath/analogs', 'wb')
 		pickle.dump(analog_yrs_dict, export)
 		export.close()
-		return print(np.array(analog_yrs_dict)) #these are the ultimate analog years result.
 
-##############################################################################################################################################
-##############################################################################################################################################
-##############################################################################################################################################
-
-
-class proccess_data_to_plot():
-	def __init__(self, analog_input): #analog input will be the amount of analog years selected by user
-
-		self.analogs_dictionary = analog_years(1985, 2019, '1-Feb', '1-May').get_analog_years()        #np.array(pickle.load(open('./datapath/analogs', 'rb')))
-		self.analog_num = analog_input
-		self.accumulations = LT_procedures(1985, 2019, '1-Feb', '1-May').rainfall_accumulations() #we're gonna need the third output
+		return np.array(analog_yrs_dict) #these are the ultimate analog years result.
 
 ##############################################################################################################################################
 
-	def get_analog_accumulation(self): #It'll filter only the analog years
-
-		#identify the analog years passwords. If user inputs 5, it returns [1, 2, 3, 4, 5]. Each number is a password
-		analogs = []; k = 0
-		while self.analog_num > 1:
-			self.analog_num = self.analog_num - k
-			k = 1
-			analogs.append(self.analog_num)
-		analogs = np.sort(analogs)
-
-		#we get the ANALOG YEARS ARRAY i.e [2000, 1982, 1995,...] they'll be my passwords to get their respective data
-		accumulation_analog_yrs = []
-		for i in np.arange(0, len(self.analogs_dictionary), 1): #for each location available
-			camp = []
-			accumulation_analog_yrs.append(camp)
-			for j in np.arange(0, len(analogs), 1):
-				get = self.analogs_dictionary[i][analogs[j]]
-				camp.append(get)
-
-		accumulation_analog_yrs = np.array(accumulation_analog_yrs)
-
-		return accumulation_analog_yrs
-	
-		#accumulation_analog_yrs = self.get_analog_accumulation()
-		#now we get the data for every analog year (accumulations)
-		analog_curves = []
-		for i in np.arange(0, len(self.accumulations[2]), 1):
-			curves = []
-			analog_curves.append(curves)
-			for j in np.arange(0, len(accumulation_analog_yrs[0]), 1):
-				com = self.accumulations[2][i][accumulation_analog_yrs[i][j]]
-				curves.append(com)
-
-		return np.array(analog_curves)#np.array(analog_curves)
-		
-
-		#return print(self.accumulations[2][0])
-		#pass
-
-
-
-		#return print(self.accumulations[2][0])#print(self.accumulations[2][0][1985])		
-
-
-'''
-
-#class1 = LT_procedures(1985, 2019, '1-Feb', '1-May')
-#print(class1.rainfall_accumulations()[2])
-
-class2 = analog_years(1985, 2019, '1-Feb', '1-May')
-print(class2.sum_error_sqr().shape)
 
 
 
 
 
-
-
-
-
+t = LT_procedures(1981, 2020, '1-Jan', '1-May')
+print(t.get_analog_years())
