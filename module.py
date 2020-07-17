@@ -38,7 +38,9 @@ class LT_procedures():
 			LT_mean.append(mean)
 
 		#As an extra we get an array that contains the current year dekads
-		current_year = data_in[dek_number:]
+		current_year = list(data_in[dek_number:])
+		k = [None]*(36 - len(current_year))
+		current_year = np.array(current_year + k) #to fill missing dekads with null characters
 
 		#OUTPUTS
 		return np.array([LT_mean, current_year, store_dek])
@@ -106,10 +108,13 @@ class LT_procedures():
 			acumulado_por_estacion.append(acumulado_ano_actual)
 
 			for i in np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1):
-				n = n + output_snack[1][k][i]
-				acumulado_ano_actual.append(n)
-				if len(acumulado_ano_actual) == len(np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1)):
-					n = 0
+				if output_snack[1][k][i] == None:
+					break
+				else:
+					n = n + output_snack[1][k][i]
+					acumulado_ano_actual.append(n)
+					if len(acumulado_ano_actual) == len(np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1)):
+						n = 0
 
 		
 		acumulado_por_estacion = np.array(acumulado_por_estacion)
@@ -169,8 +174,11 @@ class LT_procedures():
 					a = output_snack[1][i][self.dek_dictionary[self.fst_dek]-1:self.dek_dictionary[self.lst_dek]] #current year for chosen dekads
 					b = output_snack[2][i][j][self.dek_dictionary[self.fst_dek]-1:self.dek_dictionary[self.lst_dek]] #raw past year for chosen dekads
 
-					subs_sqr = (a[k] - b[k])**2
-					spec_substraction.append(subs_sqr)
+					if a[k] == None:
+						break
+					else:
+						subs_sqr = (a[k] - b[k])**2
+						spec_substraction.append(subs_sqr)
 
 		global_substraction = np.array(global_substraction) #[num_locations, num_years, num_dek]
 
@@ -235,7 +243,11 @@ class LT_procedures():
 
 
 
+t = LT_procedures(1981, 2020, '1-Jan', '3-May')
+z = t.get_analog_years()
+
+print(z)
 
 
-t = LT_procedures(1981, 2020, '1-Jan', '1-May')
-print(t.get_analog_years())
+
+

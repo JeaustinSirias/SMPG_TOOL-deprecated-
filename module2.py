@@ -75,10 +75,29 @@ class proccess_data_to_plot():
 
 ##############################################################################################################################################
 	
-	def get_graph3_curves(self):
-		pass
+	def get_graph3_curves(self): #It'll be the assembly
+
+		graph2_curves = self.get_graph2_curves()
+
+		
+		assembly = []
+		for i in np.arange(0, len(graph2_curves[0]), 1):
+			asem = []
+			assembly.append(asem)
+
+			for j in np.arange(0, len(graph2_curves[0][0]), 1):
+				link = list(graph2_curves[2].transpose()[i]) +  list(graph2_curves[0][i][j][len(graph2_curves[2].transpose()[0]):])  
 	
+
+		return assembly
+
+
+
+
+
 
 
 class1 = proccess_data_to_plot(5)
-print(class1.get_graph2_curves().shape)
+z = class1.get_graph3_curves()
+
+print(z)

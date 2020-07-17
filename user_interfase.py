@@ -3,10 +3,7 @@ import tkinter.messagebox
 import ttk
 import numpy as np
 from io import *
-from import_data import input_data
 import pandas as pd
-from modules import *
-from main import mean_plot
 from tkinter.ttk import *
 from tkinter.filedialog import askopenfile 
 
@@ -37,6 +34,8 @@ class mainFrame():
 		self.dekad_lst = ['1-Jan', '2-Jan', '3-Jan', '1-Feb', '2-Feb', '3-Feb', '1-Mar', '2-Mar', '3-Mar', '1-Apr', '2-Apr', '3-Apr', '1-May', '2-May', '3-May', '1-Jun',
 		 					'2-Jun', '3-Jun', '1-Jul', '2-Jul', '3-Jul', '1-Aug', '2-Aug', '3-Aug', '1-Sep', '2-Sep', '3-Sep', '1-Oct', '2-Oct', '3-Oct', '1-Nov', '2-Nov', 
 		 					'3-Nov', '1-Dec', '2-Dec', '3-Dec']
+		self.analogs_lst = np.arange(1, 40, 1)
+		self.variable_analogs_lst = IntVar(self.frame)
 		self.variable_init_dekad = StringVar(self.frame)
 		self.variable_end_dekad = StringVar(self.frame)
 
@@ -45,11 +44,7 @@ class mainFrame():
 		self.variable_init.set(self.year_lst[0])
 		self.variable_end.set(self.year_lst[0])
 
-		#background
-		#self.background = PhotoImage(file = '/home/jussc_/Downloads/view.gif')
-		#self.bg_label = Label(self.frame, compound = CENTER, image = self.background).grid()
-		
-		
+
 		#LABELS
 		self.label1 = Label(self.frame, text = 'Start year:')
 		self.label1.grid(row = 1, column = 1)
@@ -57,11 +52,15 @@ class mainFrame():
 		self.label2 = Label(self.frame, text = 'End year:')
 		self.label2.grid(row = 1, column = 3)
 
-		self.label3 = Label(self.frame, text = 'Choose starting dekad')
+		self.label3 = Label(self.frame, text = 'Choose starting dekad:')
 		self.label3.grid(row =2, column = 2)
 
-		self.label4 = Label(self.frame, text = 'Choose last dekad')
+		self.label4 = Label(self.frame, text = 'Choose last dekad:')
 		self.label4.grid(row = 3, column = 2)
+
+		self.label5 = Label(self.frame, text = 'Analog years to show:')
+		self.label5.grid(row = 4, column = 2)
+
 
 
 
@@ -69,8 +68,6 @@ class mainFrame():
 		self.ano_init = ttk.Combobox(self.frame, textvariable = self.variable_init, values = tuple(self.year_lst))
 		self.ano_init.grid(row = 1, column = 2)
 		#self.ano_init.pack()
-
-
 
 
 		#end year option menu
@@ -85,6 +82,10 @@ class mainFrame():
 		#end dekad menu
 		self.end_dekad = ttk.Combobox(self.frame, textvariable = self.variable_end_dekad, values = tuple(self.dekad_lst))
 		self.end_dekad.grid(row = 3, column = 3)
+
+		#ANALOG YEARS MENU
+		self.analog_menu  = ttk.Combobox(self.frame, textvariable = self.variable_analogs_lst, values = tuple(self.analogs_lst))
+		self.analog_menu.grid(row = 4, column = 3)
 
 
 		#BUTTONS
