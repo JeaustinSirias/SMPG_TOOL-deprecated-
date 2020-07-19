@@ -7,6 +7,10 @@ import pandas as pd
 from tkinter.ttk import *
 from tkinter.filedialog import askopenfile 
 
+#local packages
+from module import *
+from module2 import *
+
 
 
 
@@ -14,7 +18,7 @@ class mainFrame():
 
 	def __init__(self, master):
 
-		self.titulo = master.title('SMPG-TOOL alpha_1.0a')
+		self.titulo = master.title('SMPG-TOOL alpha_1.0b')
 
 		self.background = PhotoImage(file = '/home/jussc_/Downloads/view1.gif')
 		self.bg = Canvas(master, width = 800, height = 100 )
@@ -89,10 +93,10 @@ class mainFrame():
 
 
 		#BUTTONS
-		self.load_data_btn = Button(self.frame, text = 'LOAD DATA')
+		self.load_data_btn = Button(self.frame, text = 'COMPUTE INPUT DATA', command = lambda: mainFrame.compute_input_data(self, int(self.ano_init.get()), int(self.ano_fin.get()), str(self.start_dekad.get()), str(self.end_dekad.get())))
 		self.load_data_btn.grid(row = 2, column = 0, pady = 25)
 
-		self.LT_avg_btn = Button(self.frame, text = 'RUN LT AVERAGES', command = lambda: mean_plot(int(self.ano_init.get()), int(self.ano_fin.get())))
+		self.LT_avg_btn = Button(self.frame, text = 'GENERATE REPORTS', command = lambda: mainFrame.gen_reports(self, int(self.analog_menu.get()), int(self.ano_init.get()), int(self.ano_fin.get()), str(self.start_dekad.get()), str(self.end_dekad.get()) ))
 		self.LT_avg_btn.grid(row = 3, column = 0, pady = 25)
 
 		self.accumulations_btn =  Button(self.frame, text = 'Get accumulations history', command = lambda: graph_1().func(str(self.start_dekad.get()), str(self.end_dekad.get()), int(self.ano_init.get()), int(self.ano_fin.get()) ))
@@ -118,6 +122,27 @@ class mainFrame():
 			tkinter.messagebox.showinfo('status', 'Data loaded')
 			array_out.close()
 			del(array_out)
+
+	def compute_input_data(self, init_year, end_year, fst_dek, lst_dek):
+
+
+		run = LT_procedures(init_year, end_year, fst_dek, lst_dek)
+		run.get_analog_years()
+		tkinter.messagebox.showinfo('status', 'Dataset succesfully computed')
+
+	def gen_reports(self, an_years, init_year, end_year, init_dek, end_dek):
+
+		if an_years == 0 or an_years == 1:
+			tkinter.messagebox.showinfo('warning', 'More than 1 analog year must be chosen')
+
+		else:
+			report = proccess_data_to_plot(an_years, init_year, end_year, init_dek, end_dek)
+			report.plot_report()
+
+
+
+
+
 
 
 

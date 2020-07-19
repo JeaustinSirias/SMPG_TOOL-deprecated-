@@ -14,7 +14,7 @@ class LT_procedures():
 		self.fst_year = init_year
 		self.lst_year = end_year
 		self.dek_dictionary = pickle.load(open('./datapath/dekads_dictionary', 'rb')) #a dictionary of dekads
-		self.raw_data = pickle.load(open('data_dp', 'rb')) #WHOLE RAW DATA
+		self.raw_data = pickle.load(open('data', 'rb')) #WHOLE RAW DATA
 
 ##############################################################################################################################################
 
@@ -37,13 +37,15 @@ class LT_procedures():
 			mean = np.median(store_dek_T[i])
 			LT_mean.append(mean)
 
+
+
 		#As an extra we get an array that contains the current year dekads
 		current_year = list(data_in[dek_number:])
 		k = [None]*(36 - len(current_year))
-		current_year = np.array(current_year + k) #to fill missing dekads with null characters
+		current_year_None = np.array(current_year + k) #to fill missing dekads with null characters
 
 		#OUTPUTS
-		return np.array([LT_mean, current_year, store_dek])
+		return np.array([LT_mean, current_year_None, store_dek, np.array(current_year)])
 		#[a, b, c]
 
 ##############################################################################################################################################
@@ -52,6 +54,7 @@ class LT_procedures():
 
 		raw_years = [] #It'll be an array to store input data, but now in years
 		actual_year = []
+		actual_year_no_None = []
 		full_data_median = []#an array which contains the historical median for all completed years available
 		for i in np.arange(0, len(self.raw_data), 1):
 
@@ -59,8 +62,9 @@ class LT_procedures():
 			actual_year.append(a[1])
 			raw_years.append(a[2])
 			full_data_median.append(a[0])
+			actual_year_no_None.append(a[3])
 
-		output = np.array([full_data_median, actual_year, raw_years])
+		output = np.array([full_data_median, actual_year, raw_years, actual_year_no_None])
 
 		dek_data = open('./datapath/output_snack', 'wb') #to save whole data separated in dekads [n_locations, n_years, 36]. Only takes completed years
 		pickle.dump(output, dek_data)
@@ -109,12 +113,13 @@ class LT_procedures():
 
 			for i in np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1):
 				if output_snack[1][k][i] == None:
+					n = 0
 					break
 				else:
 					n = n + output_snack[1][k][i]
 					acumulado_ano_actual.append(n)
-					if len(acumulado_ano_actual) == len(np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1)):
-						n = 0
+					#if len(acumulado_ano_actual) == len(np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1)):
+						#n = 0
 
 		
 		acumulado_por_estacion = np.array(acumulado_por_estacion)
@@ -243,10 +248,10 @@ class LT_procedures():
 
 
 
-t = LT_procedures(1981, 2020, '1-Jan', '3-May')
-z = t.get_analog_years()
+#t = LT_procedures(1985, 2019, '1-May', '3-Nov')
+#z = t.get_analog_years()
 
-print(z)
+
 
 
 
