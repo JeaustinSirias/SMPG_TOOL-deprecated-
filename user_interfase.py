@@ -125,10 +125,14 @@ class mainFrame():
 
 	def compute_input_data(self, init_year, end_year, fst_dek, lst_dek):
 
+		if init_year == end_year:
+			tkinter.messagebox.showinfo('warning', 'Intial year and end year cannot be the same')
 
-		run = LT_procedures(init_year, end_year, fst_dek, lst_dek)
-		run.get_analog_years()
-		tkinter.messagebox.showinfo('status', 'Dataset succesfully computed')
+
+		else:
+			run = LT_procedures(init_year, end_year, fst_dek, lst_dek)
+			run.get_analog_years()
+			tkinter.messagebox.showinfo('status', 'Dataset succesfully computed')
 
 	def gen_reports(self, an_years, init_year, end_year, init_dek, end_dek):
 

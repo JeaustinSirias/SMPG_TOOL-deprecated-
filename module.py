@@ -126,8 +126,6 @@ class LT_procedures():
 		#return print(np.array(acumulado_por_estacion).shape)
 		
 		output = np.array([skim, acumulado_por_estacion.transpose(), np.array(skim_dictionary)])
-
-
 		accumulation = open('./datapath/accumulations', 'wb') #to save rainfall accumulations array as [past_years_accum, current_year_accum, past_years_dict]
 		pickle.dump(output, accumulation)
 		accumulation.close()
@@ -248,7 +246,7 @@ class LT_procedures():
 
 
 
-#t = LT_procedures(1985, 2019, '1-May', '3-Nov')
+#t = LT_procedures(1985, 2019, '1-Jan', '1-Aug')
 #z = t.get_analog_years()
 
 

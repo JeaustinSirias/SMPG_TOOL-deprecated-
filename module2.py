@@ -93,10 +93,21 @@ class proccess_data_to_plot():
 
 			for j in np.arange(0, len(graph2_curves[0][0]), 1):
 				link = list(graph2_curves[2].transpose()[i]) +  list(graph2_curves[0][i][j][len(graph2_curves[2].transpose()[0]):]) 
-				asem.append(link) 
-	
+				asem.append(link)
 
-		return np.array([np.array(assembly).transpose(), graph2_curves[0], graph2_curves[1], graph2_curves[2], graph2_curves[3]])
+		assembly = np.array(assembly)
+
+		#get median for ensemble
+		ensemble_avg = []
+		for i in np.arange(0, len(assembly), 1): #for each location 
+			z = assembly[i].transpose()
+			avg = []
+			ensemble_avg.append(avg)
+			for j in np.arange(0, len(z), 1):
+				k = np.mean(z[j])
+				avg.append(k)
+
+		return np.array([assembly.transpose(), graph2_curves[0], graph2_curves[1], graph2_curves[2], graph2_curves[3], np.array(ensemble_avg) ])
 
 ##############################################################################################################################################
 
@@ -145,7 +156,9 @@ class proccess_data_to_plot():
 			seasonal_accum_plot.grid()
 
 			#ENSEMBLE
+			#ensemble_plot.plot(np.arange(0, len(g3[1][0][0]), 1), g3[5][i], '--', color = 'k', lw = 2, label = 'ELTM')
 			ensemble_plot.plot(np.arange(0, len(g3[1][0][0]), 1), g3[2][i], color = 'r', lw = 5, label = 'LTM') #average
+			ensemble_plot.plot(np.arange(0, len(g3[1][0][0]), 1), g3[5][i], '--', color = 'k', lw = 2, label = 'ELTM')
 			ensemble_plot.plot(np.arange(0, len(g3[3].transpose()[0]), 1), g3[3].transpose()[i], color = 'b', lw = 5, label = '{}'.format(self.end_yr)) #current year
 			ensemble_plot.legend(loc='upper center', bbox_to_anchor=(0.5, -0.3), fancybox=True, shadow=True, ncol=3)
 			ensemble_plot.set_xticks(np.arange(0, len(g3[1][0][0]), 1))
@@ -162,7 +175,7 @@ class proccess_data_to_plot():
 ##############################################################################################################################################
 
 
-#class1 = proccess_data_to_plot(6, 1985, 2019, '1-May', '3-Nov')
+#class1 = proccess_data_to_plot(5, 1985, 2019, '1-Jan', '1-Aug')
 #class1.plot_report()
 
 
