@@ -7,8 +7,10 @@ from scipy.stats import rankdata
 
 
 class LT_procedures(): 
-	def __init__(self, init_year, end_year, init_dek, end_dek):
+	def __init__(self, init_year, end_year, init_dek, end_dek, init_clim, end_clim):
 
+		self.init_clim = init_clim #start climatology
+		self.end_clim = end_clim #end_climatology
 		self.fst_dek = init_dek
 		self.lst_dek = end_dek
 		self.fst_year = init_year
@@ -34,10 +36,8 @@ class LT_procedures():
 		#now we get the median for each 
 		LT_mean = []
 		for i in np.arange(0, 36, 1):
-			mean = np.median(store_dek_T[i])
+			mean = np.mean(store_dek_T[i])
 			LT_mean.append(mean)
-
-
 
 		#As an extra we get an array that contains the current year dekads
 		current_year = list(data_in[dek_number:])
@@ -52,24 +52,54 @@ class LT_procedures():
 
 	def get_median_for_whole_data(self): #to get the median for all location in-a-row
 
-		raw_years = [] #It'll be an array to store input data, but now in years
+		raw_years = [] #It'll be an array to store input data, but now by location
 		actual_year = []
 		actual_year_no_None = []
 		full_data_median = []#an array which contains the historical median for all completed years available
-		for i in np.arange(0, len(self.raw_data), 1):
+		for i in np.arange(0, len(self.raw_data[2]), 1):
 
-			a = self.compute_median(self.raw_data[i])
+			a = self.compute_median(self.raw_data[2][i])
 			actual_year.append(a[1])
 			raw_years.append(a[2])
 			full_data_median.append(a[0])
 			actual_year_no_None.append(a[3])
 
-		output = np.array([full_data_median, actual_year, raw_years, actual_year_no_None])
+		#****************************************CLIMATOLOGY********************************
+		#we're gonna setup a way to fix climatology. For this we'll make
+		#a dictionary with all years gotten in the header like: {1985:0, 1986:1, ... 2018:33}
+		#so when user inputs its climatology window, program will user bouds as passwords in this dictionary
+
+		year_1 = int(self.raw_data[1][0][0:4]) #absolute first year
+		year_2 = int(self.raw_data[1][-1][0:4]) #absolute last year
+		years = np.arange(year_1, year_2, 1)
+		linspace = np.arange(0, len(years), 1)
+		clim_dict = dict(zip(years, linspace)) #a dictionary which will help me to choose climatology
+
+		clim = []
+		for i in np.arange(0, len(raw_years), 1):
+			add = raw_years[i][clim_dict[self.init_clim]:clim_dict[self.end_clim]+1]
+			clim.append(add) 
+
+		clim = np.array(clim)
+
+		#to get the mean for climatology window
+		mean_clim = [] #to store mean data from climatology
+		for i in np.arange(0, len(clim), 1):
+			get = []
+			mean_clim.append(get)
+			for k in np.arange(0, len(clim[0].transpose()), 1):
+				store = np.mean(clim[i].transpose()[k])
+				get.append(store)
+
+		#OUTPUT OPERATIONS
+		#this output gives an array with these specs: [average based ]					  [location labels]	[climatology_graph1]
+		output = np.array([full_data_median, actual_year, raw_years, actual_year_no_None, self.raw_data[0], mean_clim])
 
 		dek_data = open('./datapath/output_snack', 'wb') #to save whole data separated in dekads [n_locations, n_years, 36]. Only takes completed years
 		pickle.dump(output, dek_data)
 		dek_data.close()
 
+	
 		return output # np.array([full_data_median, actual_year, raw_years])
 
 ##############################################################################################################################################
@@ -118,8 +148,8 @@ class LT_procedures():
 				else:
 					n = n + output_snack[1][k][i]
 					acumulado_ano_actual.append(n)
-					#if len(acumulado_ano_actual) == len(np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1)):
-						#n = 0
+					if len(acumulado_ano_actual) == len(np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1)):
+						n = 0
 
 		
 		acumulado_por_estacion = np.array(acumulado_por_estacion)
@@ -130,6 +160,7 @@ class LT_procedures():
 		pickle.dump(output, accumulation)
 		accumulation.close()
 
+		
 		return np.array([skim, acumulado_por_estacion.transpose(), np.array(skim_dictionary)])
 
 ##############################################################################################################################################
@@ -246,8 +277,8 @@ class LT_procedures():
 
 
 
-#t = LT_procedures(1985, 2019, '1-Jan', '1-Aug')
-#z = t.get_analog_years()
+t = LT_procedures(1981, 2020, '1-Feb', '3-May', 1981, 2010)
+z = t.get_analog_years()
 
 
 

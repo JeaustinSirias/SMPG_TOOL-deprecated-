@@ -4,9 +4,37 @@ import pickle
 from io import *
 import plotly.graph_objects as go
 from plotly.colors import n_colors
-import numpy as np
+import pandas as pd
 
 
+def input_data(input_d):
+	data = pd.read_csv(input_d, header = None,)
+	df = pd.DataFrame(data)
+
+	#SETUP HEADER AS STRING LIKE 'YEAR|DEK' FIRST 4 CHARACTERS DEFINE YEAR AND LAST 2 CHARACTERS DEFINE ITS DEK
+	header = list(df.loc[0][1:])
+	header_str = []
+	for i in np.arange(0, len(header), 1):
+		head =  str(header[i])[0:6]
+		header_str.append(head)
+
+	#returns a 3rd dim array with this features: [locations'_tags, header, raw data]
+	return np.array([np.array(df.loc[1:][0]), np.array(header_str), np.array(df.loc[1:]).transpose()[1:].transpose()])
+
+print(input_data('data_hg.csv')[2].shape)
+
+
+
+
+
+
+
+
+
+
+
+
+'''
 data = [[ 66386, 174296,  75131, 577908,  32015],
         [ 58230, 381139,  78045,  99308, 160454],
         [ 89135,  80552, 152558, 497981, 603535],
@@ -55,7 +83,7 @@ plt.xticks([])
 plt.title('Loss by Disaster')
 
 plt.show()
-
+'''
 
 
 
