@@ -4,6 +4,8 @@ import pickle
 from io import *
 import pandas as pd
 from scipy.stats import rankdata
+from collections import defaultdict
+
 
 
 class LT_procedures(): 
@@ -151,7 +153,6 @@ class LT_procedures():
 					if len(acumulado_ano_actual) == len(np.arange(self.dek_dictionary[self.fst_dek]-1, self.dek_dictionary[self.lst_dek], 1)):
 						n = 0
 
-		
 		acumulado_por_estacion = np.array(acumulado_por_estacion)
 		#return print(np.array(acumulado_por_estacion).shape)
 		
@@ -253,32 +254,58 @@ class LT_procedures():
 				med_yrs.append(summ)
 
 		#now we must rank analog_yrs_immed
+
 		analog_yrs = []
+		analog_yrs_ranked = []
 		for i in np.arange(0, len(analog_yrs_immed), 1):
 			com = rankdata(analog_yrs_immed[i], method = 'ordinal')
+			com_ranked = rankdata(analog_yrs_immed[i], method = 'dense')
 			analog_yrs.append(com)
+			analog_yrs_ranked.append(com_ranked)
+
+
 
 		#we better create a dictionary so we can link the ranks to their corresponding year
 		time_window = np.arange(self.fst_year, self.lst_year, 1)
-
 		analog_yrs_dict = []
 		for i in np.arange(0, len(analog_yrs), 1):
 			dictionary = dict(zip(np.array(analog_yrs[i]), time_window))
 			analog_yrs_dict.append(dictionary)
 
+
+		#also we need to create a dictionary which sets up by rank. There may be several analog years that share the same rank. 
+		ranked = []
+		for j in np.arange(0, len(analog_yrs_ranked), 1):
+
+			data_dict = defaultdict(list)
+			tupla = []
+			k = 0
+			for i in time_window:
+				m = (i, analog_yrs_ranked[j][k])
+				tupla.append(m)
+				k = k + 1
+
+			for k, v in tupla:
+				data_dict[v].append(k)
+
+			ranked.append(dict(data_dict))
+
+
 		export = open('./datapath/analogs', 'wb')
 		pickle.dump(analog_yrs_dict, export)
 		export.close()
 
-		return np.array(analog_yrs_dict) #these are the ultimate analog years result.
+		return np.array(analog_yrs_dict) #these are the ranks for analog years
+		#return print(np.array(ranked).shape)
+
 
 ##############################################################################################################################################
 
 
 
 
-t = LT_procedures(1981, 2020, '1-Feb', '3-May', 1981, 2010)
-z = t.get_analog_years()
+#t = LT_procedures(1981, 2020, '1-Feb', '3-May', 1981, 2010)
+#z = print(t.get_analog_years())
 
 
 

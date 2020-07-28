@@ -5,8 +5,40 @@ from io import *
 import plotly.graph_objects as go
 from plotly.colors import n_colors
 import pandas as pd
+from collections import defaultdict
 
 
+space = {}
+
+
+key = [ 7, 7, 7, 1, 3, 4, 5, 5, 1]
+val = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
+data_dict = defaultdict(list)
+
+tupla = []
+k = 0 
+for i in key:
+	m = (i, val[k])
+	tupla.append(m)
+	k = k + 1
+
+for k, v in tupla:
+	data_dict[k].append(v)
+
+print(dict(data_dict))
+
+
+
+plt.figure()
+plt.plot([4], [5], marker='o', markersize=10, color="red")
+plt.show()
+
+
+
+
+
+
+'''
 def input_data(input_d):
 	data = pd.read_csv(input_d, header = None,)
 	df = pd.DataFrame(data)
@@ -26,15 +58,42 @@ print(input_data('data_hg.csv')[2].shape)
 
 
 
+rows = ['%d year' % x for x in (100, 50, 20, 10, 5)]
+
+'''
+
+'''
+row = ['Seasonal Avgs', 'Seasonal std', 'Seasonal 33rd', 'Seasonal 67th']
+txt = [[127, 129], [234, 333], [190, 123], [222, 345]]
+col = ('Analogs', 'All years')
+
+plt.figure()
+plt.table(rowLabels = row, colLabels = col, cellText = txt)
+plt.show()
 
 
 
 
+fig, ax = plt.subplots(1)
 
+# Hide axes
+ax.xaxis.set_visible(False) 
+ax.yaxis.set_visible(False)
 
+# Table from Ed Smith answer
+clust_data = np.random.random((10,3))
+collabel=("col 1", "col 2", "col 3")
+ax.table(cellText=clust_data,colLabels=collabel,loc='center')
+plt.show()
+'''
 
 
 '''
+rows = ['%d year' % x for x in (100, 50, 20, 10, 5)]
+print(rows)
+
+
+
 data = [[ 66386, 174296,  75131, 577908,  32015],
         [ 58230, 381139,  78045,  99308, 160454],
         [ 89135,  80552, 152558, 497981, 603535],
@@ -66,6 +125,7 @@ for row in range(n_rows):
 # Reverse colors and text labels to display the last value at the top.
 colors = colors[::-1]
 cell_text.reverse()
+print(cell_text)
 
 # Add a table at the bottom of the axes
 the_table = plt.table(cellText=cell_text,

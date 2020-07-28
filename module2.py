@@ -47,7 +47,6 @@ class proccess_data_to_plot():
 				get = self.analogs_dictionary[i][analogs[j]]
 				camp.append(get)
 
-		
 		return np.array(accumulation_analog_yrs)
 
 ##############################################################################################################################################
@@ -55,23 +54,36 @@ class proccess_data_to_plot():
 	def get_graph2_curves(self): #now we get the data for every analog year (accumulations)
 
 		years = self.get_analog_accumulation()
-
-		analog_curves = []
+		
+		analog_curves = [] #these are analog years to plot
+		#choosing analogs to plot
 		for i in np.arange(0, len(self.accumulations[2]), 1):
 			curves = []
 			analog_curves.append(curves)
 			for j in np.arange(0, len(years[0]), 1):
 				com = self.accumulations[2][i][years[i][j]]
 				curves.append(com)
+		
+		#analog_curves = np.array(analog_curves) #it contains ONLY the curves for chosen analog years in the climatology
 
-		analog_curves = np.array(analog_curves) #it contains ONLY the curves for chosen analog years
-
-		#To get the accumulated rainfall median FOR PAST YEARS
+		#choosing analog years found in climatology window. This is usefull to calc climatology based in rainfall accumulations
+		analog_curves_clim = [] #it'll only contains the curves for analog years between chosen climatology window
+		for i in np.arange(0, len(self.accumulations[2]), 1):
+			curves_clim = []
+			analog_curves_clim.append(curves_clim)
+			for j in np.arange(0, len(years[0]), 1):
+				#if self.end_clim >= years[i][j] and years[i][j] >= self.init_clim: #si el ano analogo esta entre 2010 y 1981
+				if years[i][j] <= self.end_clim and years[i][j] >= self.init_clim:
+					com_clim = self.accumulations[2][i][years[i][j]]
+					curves_clim.append(com_clim)
+				
+		
+		#To get the accumulated rainfall mean FOR PAST YEARS for chosen analogs in CLIMATOLOGY ONLY!
 		external = []
-		for i in np.arange(0, len(analog_curves), 1):
-			n = np.array(analog_curves[i].transpose())
+		for i in np.arange(0, len(analog_curves_clim), 1):
+			n = np.array(analog_curves_clim[i]).transpose()
 			external.append(n)
-		external = np.array(external)
+		#external = np.array(external).transpose()
 
 		accumulated_median = []
 		for i in np.arange(0, len(external), 1):
@@ -82,8 +94,34 @@ class proccess_data_to_plot():
 				com.append(m)
 		accumulated_median = np.array(accumulated_median)
 
+		#WE'RE GONNA GET STATICS BASED IN PLOTTABLE INFO FOR GRAPH 2
+		biggest_accum_row = [] #an array to hold the lastest accumulations for each year in chosen analogs
+		for i in np.arange(0, len(analog_curves), 1):
+			z = []
+			biggest_accum_row.append(z)
+			for j in np.arange(0, len(analog_curves[0]), 1):
+				k = analog_curves[i][j][-1]
+				z.append(k)
+
+		biggest_accum_row = np.array(biggest_accum_row)
+
+		#GET STANDARD DEVIATION, 33rd, 67th pertenciles, std+avg, std-avg
+		statics = [] #runup will be a statics array like [std_dev, 33rd, 67th, std+avg, std-avg]
+		for i in np.arange(0, len(biggest_accum_row), 1):
+
+			thrd = np.percentile(biggest_accum_row[i], 33)
+			sixth = np.percentile(biggest_accum_row[i], 67)
+			dev = np.std(biggest_accum_row[i])
+			std_add = accumulated_median[i][-1] + dev
+			std_sub = accumulated_median[i][-1] - dev
+
+			statics.append([dev, thrd, sixth, std_add, std_sub])
+		
+
 		#THIS ARRAY CONTAINS THE NEEDED Y-AXIS DATA TO PLOT THE SECOND FIGURE
-		return np.array([analog_curves, accumulated_median, self.accumulations[1], years]) #np.array(analog_curves)
+		return np.array([analog_curves, accumulated_median, self.accumulations[1], years, statics, analog_curves_clim ]) #np.array(analog_curves)
+		#return np.array(external[13]).shape
+		
 
 ##############################################################################################################################################
 	
@@ -92,8 +130,8 @@ class proccess_data_to_plot():
 		graph2_curves = self.get_graph2_curves()
 
 		#this loop will take the [-1] element form the accumulated current year array and will start a new accumulation from this 
-		#point for each location, in every past year until the dekad window ends i.e if my current year ends at 3-May but muy chosen
-		#dekad window ends at 1-Aug, then it'll create a (num_loc, num_years, 1-May - 1-Aug) array 
+		#point for each location, in every past year until the dekad window ends i.e if my current year ends on 3-May dek, but muy chosen
+		#dekad window ends on 1-Aug, then it'll create a (num_loc, num_years, 1-May - 1-Aug) array 
 		
 		#SETTING UP ENSEMBLE
 		assembly = [] #it'll store the ensemble array
@@ -101,16 +139,20 @@ class proccess_data_to_plot():
 			n = graph2_curves[2].transpose()[i][-1]
 			asem = []
 			assembly.append(asem)
+
 			for j in np.arange(0, len(self.output_snack[2][0]), 1): #for each location 
 				stamp = []
 				asem.append(stamp)
-				for k in np.arange(len(self.output_snack[3][0]), self.dek_dictionary[self.end_dek], 1):
 
+				for k in np.arange(len(self.output_snack[3][0]), self.dek_dictionary[self.end_dek], 1):
 					n = n + self.output_snack[2][i][j][k]
 					stamp.append(n)
 
 					if len(stamp) == len(np.arange(len(self.output_snack[3][0]), self.dek_dictionary[self.end_dek], 1)):
 						n = graph2_curves[2].transpose()[i][-1]
+
+	
+
 
 		#PREPARING ENSEMBLE ARRAY
 		#the next loop is to cat the ensemble to current year 
@@ -125,7 +167,7 @@ class proccess_data_to_plot():
 
 		ensemble = np.array(ensemble)
 	
-		#get median for ensemble
+		#get median for ensemble, but based in analog years in climatology window
 		ensemble_avg = []
 		for i in np.arange(0, len(ensemble), 1): #for each location 
 			z = ensemble[i].transpose()
@@ -135,7 +177,7 @@ class proccess_data_to_plot():
 				k = np.mean(z[j])
 				avg.append(k)
 
-		return np.array([ensemble.transpose(), graph2_curves[0], graph2_curves[1], graph2_curves[2], graph2_curves[3], np.array(ensemble_avg) ])
+		return np.array([ensemble.transpose(), graph2_curves[0], graph2_curves[1], graph2_curves[2], graph2_curves[3], np.array(ensemble_avg), graph2_curves[4] ])
 		
 		#return np.array(ensemble_avg)
 		#return np.arange(len(graph2_curves[2].transpose()[0]), self.dek_dictionary[self.end_dek], 1) #len(list(self.output_snack[2][0][0][0])), 1)
@@ -149,11 +191,13 @@ class proccess_data_to_plot():
 		#we need to plot a 3 subplots report 
 		for i in np.arange(0, len(g3[1]), 1):
 
+			#SUBPLOT SETUP
 			fig = plt.figure(num = i, tight_layout = True, figsize = (11, 8)) #figure number. There will be a report for each processed location
 			fig_grid = gridspec.GridSpec(2,2) #we set a 2x2 grid space to place subplots
 			avg_plot = fig.add_subplot(fig_grid[0, :])
 			seasonal_accum_plot = fig.add_subplot(fig_grid[1, 0])
 			ensemble_plot = fig.add_subplot(fig_grid[1, 1])
+			#sample_table = fig.add_subplot(fig_grid[0, 3])
 
 			#AVG AND CURRENT RAINFALL SEASON:
 			avg_plot.plot(np.arange(0, 36, 1), self.output_snack[-1][i], color = 'r', lw = 4, label = 'LT Avg (climatology): {init} - {end}'.format(init = self.init_clim, end = self.end_clim))
@@ -184,6 +228,14 @@ class proccess_data_to_plot():
 			#SEASONAL ACCUMULATIONS
 			seasonal_accum_plot.plot(np.arange(0, len(g3[1][0][0]), 1), g3[2][i], color = 'r', lw = 5, label = 'LTM') #average
 			seasonal_accum_plot.plot(np.arange(0, len(g3[3].transpose()[0]), 1), g3[3].transpose()[i], color = 'b', lw = 5, label = '{}'.format(self.end_yr)) #current year
+
+			#statics
+			seasonal_accum_plot.plot([np.arange(0, len(g3[1][0][0]), 1)[-1]], [g3[-1][i][3]], marker='^', markersize=7, color="green", label = 'Avg+Std')
+			seasonal_accum_plot.plot([np.arange(0, len(g3[1][0][0]), 1)[-1]], [g3[-1][i][4]], marker='^', markersize=7, color="green", label = 'Avg-Std')
+			seasonal_accum_plot.plot([np.arange(0, len(g3[1][0][0]), 1)[-1]], [g3[-1][i][1]], marker='s', markersize=7, color="k", label = '33rd prctl')
+			seasonal_accum_plot.plot([np.arange(0, len(g3[1][0][0]), 1)[-1]], [g3[-1][i][2]], marker='s', markersize=7, color="k", label = '67th prctl')
+
+
 			seasonal_accum_plot.legend(loc='upper center', bbox_to_anchor=(0.5, -0.3), fancybox=True, shadow=True, ncol=3)
 			seasonal_accum_plot.set_title('Seasonal accumulations')
 			seasonal_accum_plot.set_ylabel('Accum. rainfall [mm]')
@@ -192,10 +244,28 @@ class proccess_data_to_plot():
 			seasonal_accum_plot.set_xticklabels(list(self.dek_dictionary.keys())[self.dek_dictionary[self.init_dek]-1:self.dek_dictionary[self.end_dek]], rotation = 'vertical')
 			seasonal_accum_plot.grid()
 
+			'''
+			row = ['Seasonal Avgs', 'Seasonal std', 'Seasonal 33rd', 'Seasonal 67th']
+			txt = [[127, 129], [234, 333], [190, 123], [222, 345]]
+			col = ('Analogs', 'All years')
+			sample_table.axis('tight')
+			sample_table.axis('off')
+			sample_table.table(rowLabels = row, colLabels = col, cellText = txt, loc = 'right', cellLoc = 'center')
+			'''
+			
+
 			#ENSEMBLE
 			#ensemble_plot.plot(np.arange(0, len(g3[1][0][0]), 1), g3[5][i], '--', color = 'k', lw = 2, label = 'ELTM')
 			ensemble_plot.plot(np.arange(0, len(g3[1][0][0]), 1), g3[2][i], color = 'r', lw = 5, label = 'LTM') #average
 			ensemble_plot.plot(np.arange(0, len(g3[1][0][0]), 1), g3[5][i], '--', color = 'k', lw = 2, label = 'ELTM')
+
+			#statics
+			ensemble_plot.plot([np.arange(0, len(g3[1][0][0]), 1)[-1]], [g3[-1][i][3]], marker='^', markersize=7, color="green", label = 'Avg+Std')
+			ensemble_plot.plot([np.arange(0, len(g3[1][0][0]), 1)[-1]], [g3[-1][i][4]], marker='^', markersize=7, color="green", label = 'Avg-Std')
+			ensemble_plot.plot([np.arange(0, len(g3[1][0][0]), 1)[-1]], [g3[-1][i][1]], marker='s', markersize=7, color="k", label = '33rd prctl')
+			ensemble_plot.plot([np.arange(0, len(g3[1][0][0]), 1)[-1]], [g3[-1][i][2]], marker='s', markersize=7, color="k", label = '67th prctl')
+
+
 			ensemble_plot.plot(np.arange(0, len(g3[3].transpose()[0]), 1), g3[3].transpose()[i], color = 'b', lw = 5, label = '{}'.format(self.end_yr)) #current year
 			ensemble_plot.legend(loc='upper center', bbox_to_anchor=(0.5, -0.3), fancybox=True, shadow=True, ncol=3)
 			ensemble_plot.set_xticks(np.arange(0, len(g3[1][0][0]), 1))
@@ -211,8 +281,8 @@ class proccess_data_to_plot():
 ##############################################################################################################################################
 
 
-class1 = proccess_data_to_plot(10, 1981, 2020, '1-Feb', '3-May', 1981, 2010)
-print(class1.get_graph2_curves()[0].shape)
+class1 = proccess_data_to_plot(5, 1985, 2019, '1-Feb', '3-Jun', 1985, 2010)
+class1.plot_report()
 
 
 
