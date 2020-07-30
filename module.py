@@ -295,8 +295,8 @@ class LT_procedures():
 		pickle.dump(analog_yrs_dict, export)
 		export.close()
 
-		return np.array(analog_yrs_dict) #these are the ranks for analog years
-		#return print(np.array(ranked).shape)
+		#return np.array(analog_yrs_dict) #these are the ranks for analog years
+		return print(np.array(ranked))
 
 
 ##############################################################################################################################################
@@ -304,8 +304,8 @@ class LT_procedures():
 
 
 
-#t = LT_procedures(1981, 2020, '1-Feb', '3-May', 1981, 2010)
-#z = print(t.get_analog_years())
+#t = LT_procedures(1981, 2020, '1-Feb', '1-Jun', 1981, 2010)
+#z = t.get_analog_years()
 
 
 

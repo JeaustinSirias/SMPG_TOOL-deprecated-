@@ -6,6 +6,7 @@ from io import *
 import pandas as pd
 from tkinter.ttk import *
 from tkinter.filedialog import askopenfile 
+import os
 
 #local packages
 from module import *
@@ -20,7 +21,7 @@ class mainFrame():
 
 		self.titulo = master.title('SMPG-TOOL alpha_1.0b')
 
-		self.background = PhotoImage(file = '/home/jussc_/Downloads/view1.gif')
+		self.background = PhotoImage(file = '/home/jussc_/Downloads/new.gif')
 		self.bg = Canvas(master, width = 800, height = 100 )
 		self.bg.pack()
 		self.cv_img = self.bg.create_image(0, 0, image = self.background, anchor = 'nw')
@@ -43,6 +44,7 @@ class mainFrame():
 		self.variable_init_dekad = StringVar(self.frame)
 		self.variable_end_dekad = StringVar(self.frame)
 
+		self.radio_button = IntVar(self.frame)
 		self.variable_init = IntVar(self.frame)
 		self.variable_end = IntVar(self.frame)
 		self.variable_init.set(self.year_lst[0])
@@ -56,8 +58,8 @@ class mainFrame():
 ##############################################################################################################################################
 
 		#LABELS
-		self.label0 = Label(self.frame, text = 'Setup climatology window')
-		self.label0.grid(row = 0, column = 1, columnspan = 4)
+		self.label0 = Label(self.frame, text = 'Set up climatology window')
+		self.label0.grid(row = 2, column = 1, columnspan = 4)
 
 		self.label_clim1 = Label(self.frame, text = 'From:')
 		self.label_clim1.grid(row = 1, column = 1, padx = 10)
@@ -66,7 +68,7 @@ class mainFrame():
 		self.label_clim2.grid(row = 1, column = 3, padx = 10)
 
 		self.labelz = Label(self.frame, text = 'Choose analysis preferences')
-		self.labelz.grid(row = 2, column = 1, columnspan = 4)
+		self.labelz.grid(row = 0, column = 1, columnspan = 4)
 
 		self.labelz = Label(self.frame, text = 'Define a season to monitor')
 		self.labelz.grid(row = 4, column = 1, columnspan = 4, pady = 25)
@@ -86,26 +88,32 @@ class mainFrame():
 		self.label4.grid(row = 5, column = 3)
 	
 
-		self.label5 = Label(self.frame, text = 'Select analog years to compute by rank:')
+		self.label5 = Label(self.frame, text = 'Select the number of analog years to compute:')
 		self.label5.grid(row = 6, column = 1, pady = 25, columnspan = 3)
+
+		self.label6 = Label(self.frame, text = 'Specify the top by rank:')
+		self.label6.grid(row = 7, column = 1, pady = 25, columnspan = 3)
+
+		self.label7 = Label(self.frame, text = 'Computing preferences')
+		self.label7.grid(row = 5, column = 0)
 
 ##############################################################################################################################################		
 		#MENUS
 
 		self.init_clim = ttk.Combobox(self.frame, textvariable = self.variable_init_clim, values = tuple(self.year_lst))
-		self.init_clim.grid(row = 1, column = 2)
+		self.init_clim.grid(row = 3, column = 2)
 
 		self.end_clim = ttk.Combobox(self.frame, textvariable = self.variable_end_clim, values = tuple(self.year_lst))
-		self.end_clim.grid(row = 1, column = 4)
+		self.end_clim.grid(row = 3, column = 4)
 		
 		#start year option menu
 		self.ano_init = ttk.Combobox(self.frame, textvariable = self.variable_init, values = tuple(self.year_lst))
-		self.ano_init.grid(row = 3, column = 2)
+		self.ano_init.grid(row = 1, column = 2)
 		#self.ano_init.pack()
 
 		#end year option menu
 		self.ano_fin = ttk.Combobox(self.frame, textvariable = self.variable_end, values = tuple(self.year_lst))
-		self.ano_fin.grid(row = 3, column = 4)
+		self.ano_fin.grid(row = 1, column = 4)
 		#self.ano_fin.pack()
 
 		#first dekad menu
@@ -149,10 +157,16 @@ class mainFrame():
 		self.browse_btn = Button(self.frame, text = 'Browse Files', command = lambda: mainFrame.open_file(self))
 		self.browse_btn.grid(row = 0, column = 0, pady = 20)
 
-		self.help_btn = Button(self.frame, text = 'Help/Quick tutorial')
+		self.help_btn = Button(self.frame, text = 'Clear', command = lambda: mainFrame.clearFiles(self))
 		#self.help_btn.configure(bg = 'red')
-		self.help_btn.grid(row = 7, column = 4, pady = 25)
+		self.help_btn.grid(row = 8, column = 4, pady = 25)
 		
+
+		self.fct = Radiobutton(self.frame, text = 'Forecast', variable = self.radio_button, value = 0)
+		self.fct.grid(row = 6, column = 0)
+
+		self.analysis = Radiobutton(self.frame, text = 'Analysis', variable = self.radio_button, value = 1)
+		self.analysis.grid(row = 7, column = 0)
 
 ##############################################################################################################################################
 
@@ -203,8 +217,28 @@ class mainFrame():
 			report.plot_report()
 
 ##############################################################################################################################################
+	
+	def clearFiles(self):
+		#clear menus:
+		self.ano_init.set('')
+		self.ano_fin.set('')
+		self.analog_menu.set('')
+		self.start_dekad.set('')
+		self.end_dekad.set('')
+		self.init_clim.set('')
+		self.end_clim.set('')
 
+		#clear files
+		try:
+			for i in ['data', './datapath/output_snack', './datapath/accumulations', './datapath/analogs']:
+				os.remove(i)
 
+		except FileNotFoundError:
+			a = 0
+		
+		tkinter.messagebox.showinfo('status', 'All cleared!')
+
+##############################################################################################################################################
 root = Tk()
 #root.config(bg = 'blue')
 
