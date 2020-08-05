@@ -10,7 +10,7 @@ import os
 
 #local packages
 from module import *
-from module2 import *
+from plotModule import *
 
 
 
@@ -19,9 +19,9 @@ class mainFrame():
 
 	def __init__(self, master):
 
-		self.titulo = master.title('SMPG-TOOL alpha_1.0b')
+		self.titulo = master.title('SMPG-TOOL alpha_1.1c')
 
-		self.background = PhotoImage(file = '/home/jussc_/Downloads/new.gif')
+		self.background = PhotoImage(file = '/home/jussc_/Downloads/logo.gif')
 		self.bg = Canvas(master, width = 800, height = 100 )
 		self.bg.pack()
 		self.cv_img = self.bg.create_image(0, 0, image = self.background, anchor = 'nw')
@@ -91,8 +91,8 @@ class mainFrame():
 		self.label5 = Label(self.frame, text = 'Select the number of analog years to compute:')
 		self.label5.grid(row = 6, column = 1, pady = 25, columnspan = 3)
 
-		self.label6 = Label(self.frame, text = 'Specify the top by rank:')
-		self.label6.grid(row = 7, column = 1, pady = 25, columnspan = 3)
+		self.label6 = Label(self.frame, text = 'Specify max. rank to show:')
+		self.label6.grid(row = 7, column = 1, columnspan = 3)
 
 		self.label7 = Label(self.frame, text = 'Computing preferences')
 		self.label7.grid(row = 5, column = 0)
@@ -127,6 +127,11 @@ class mainFrame():
 		#ANALOG YEARS MENU
 		self.analog_menu  = ttk.Combobox(self.frame, textvariable = self.variable_analogs_lst, values = tuple(self.analogs_lst))
 		self.analog_menu.grid(row = 6, column = 4)
+
+		#RANK SELECTION MENU
+		self.rank_menu  = ttk.Combobox(self.frame, textvariable = self.variable_analogs_lst, values = tuple(self.analogs_lst))
+		self.rank_menu.grid(row = 7, column = 4)
+
 	
 ##############################################################################################################################################	
 		#BUTTONS
@@ -137,7 +142,8 @@ class mainFrame():
 																															str(self.start_dekad.get()), 
 																															str(self.end_dekad.get()),
 																															int(self.init_clim.get()),
-																															int(self.end_clim.get())))
+																															int(self.end_clim.get()),
+																															int(self.analog_menu.get())))
 		self.load_data_btn.grid(row = 2, column = 0, pady = 25)
 
 		
@@ -165,7 +171,7 @@ class mainFrame():
 		self.fct = Radiobutton(self.frame, text = 'Forecast', variable = self.radio_button, value = 0)
 		self.fct.grid(row = 6, column = 0)
 
-		self.analysis = Radiobutton(self.frame, text = 'Analysis', variable = self.radio_button, value = 1)
+		self.analysis = Radiobutton(self.frame, text = 'Observed data', variable = self.radio_button, value = 1)
 		self.analysis.grid(row = 7, column = 0)
 
 ##############################################################################################################################################
@@ -194,14 +200,14 @@ class mainFrame():
 
 ##############################################################################################################################################
 
-	def compute_input_data(self, init_year, end_year, fst_dek, lst_dek, init_clim, end_clim):
+	def compute_input_data(self, init_year, end_year, fst_dek, lst_dek, init_clim, end_clim, analog_input):
 
 		if init_year == end_year:
 			tkinter.messagebox.showinfo('warning', 'Intial year and end year cannot be the same')
 
 
 		else:
-			run = LT_procedures(init_year, end_year, fst_dek, lst_dek, init_clim, end_clim)
+			run = LT_procedures(init_year, end_year, fst_dek, lst_dek, init_clim, end_clim, analog_input)
 			run.get_analog_years()
 			tkinter.messagebox.showinfo('status', 'Dataset succesfully computed')
 
@@ -214,7 +220,7 @@ class mainFrame():
 
 		else:
 			report = proccess_data_to_plot(an_years, init_year, end_year, init_dek, end_dek, init_clim, end_clim)
-			report.plot_report()
+			report.generate_reports()
 
 ##############################################################################################################################################
 	

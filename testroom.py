@@ -6,8 +6,79 @@ import plotly.graph_objects as go
 from plotly.colors import n_colors
 import pandas as pd
 from collections import defaultdict
+import math
 
 
+k = {1:[2010, 2011], 2:[1980, 1988, 2009], 3:[2003], 4:[2005, 2000], 5:[1997]}
+analog_col = []; analog_data = []; z = 0
+
+y = 5
+while y > 1:
+	y = y - z
+	ar = 'analog {top}'.format(top = y)
+	ad = [k[y]]
+	analog_col.append(ar)
+	analog_data.append(ad)
+	z = 1
+
+plt.figure()
+plt.axis('tight')
+plt.axis('off')
+plt.table(colLabels = ['Years'], rowLabels = analog_col, cellText = analog_data, loc = 'center', cellLoc = 'center', bbox = [0.25, 0.35, 0.8, 0.6])
+plt.show()
+
+
+print(analog_data)
+		
+
+
+
+
+
+
+'''
+import plotly.graph_objects as go
+from plotly.colors import n_colors
+import numpy as np
+np.random.seed(1)
+
+colors = n_colors('rgb(255, 200, 200)', 'rgb(200, 0, 0)', 9, colortype='rgb')
+a = np.random.randint(low=0, high=9, size=10)
+b = np.random.randint(low=0, high=9, size=10)
+c = np.random.randint(low=0, high=9, size=10)
+
+fig = go.Figure(data=[go.Table(
+  header=dict(
+    values=['<b>Column A</b>', '<b>Column B</b>', '<b>Column C</b>'],
+    line_color='white', fill_color='white',
+    align='center',font=dict(color='black', size=12)
+  ),
+  cells=dict(
+    values=[a, b, c],
+    line_color=[np.array(colors)[a],np.array(colors)[b], np.array(colors)[c]],
+    fill_color=[np.array(colors)[a],np.array(colors)[b], np.array(colors)[c]],
+    align='center', font=dict(color='white', size=11)
+    ))
+])
+
+fig.show()
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
 space = {}
 
 
@@ -33,7 +104,7 @@ plt.figure()
 plt.plot([4], [5], marker='o', markersize=10, color="red")
 plt.show()
 
-
+'''
 
 
 

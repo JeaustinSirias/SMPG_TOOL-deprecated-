@@ -9,8 +9,9 @@ from collections import defaultdict
 
 
 class LT_procedures(): 
-	def __init__(self, init_year, end_year, init_dek, end_dek, init_clim, end_clim):
+	def __init__(self, init_year, end_year, init_dek, end_dek, init_clim, end_clim, analog_input):
 
+		self.analog_num = analog_input #number of analog years to compute
 		self.init_clim = init_clim #start climatology
 		self.end_clim = end_clim #end_climatology
 		self.fst_dek = init_dek
@@ -290,13 +291,35 @@ class LT_procedures():
 
 			ranked.append(dict(data_dict))
 
+		#to get the analog years according to the user's choice
+
+		analogs = []; k = 0
+		while self.analog_num > 1:
+			self.analog_num = self.analog_num - k
+			k = 1
+			analogs.append(self.analog_num)
+		analogs = np.sort(analogs)
+
+		#we get the ANALOG YEARS ARRAY i.e [2000, 1982, 1995,...] they'll be my passwords to get their respective data
+		accumulation_analog_yrs = []
+		for i in np.arange(0, len(analog_yrs_dict), 1): #for each location available
+			camp = []
+			accumulation_analog_yrs.append(camp)
+			for j in np.arange(0, len(analogs), 1):
+				get = analog_yrs_dict[i][analogs[j]]
+				camp.append(get)
+
+
+
+		analog_array = np.array([analog_yrs_dict, ranked, accumulation_analog_yrs])
+
 
 		export = open('./datapath/analogs', 'wb')
-		pickle.dump(analog_yrs_dict, export)
+		pickle.dump(analog_array, export)
 		export.close()
 
 		#return np.array(analog_yrs_dict) #these are the ranks for analog years
-		return print(np.array(ranked))
+		return analog_array
 
 
 ##############################################################################################################################################
@@ -304,8 +327,8 @@ class LT_procedures():
 
 
 
-#t = LT_procedures(1981, 2020, '1-Feb', '1-Jun', 1981, 2010)
-#z = t.get_analog_years()
+#t = LT_procedures(1981, 2020, '1-Feb', '3-May', 1981, 2010, 39)
+#z = print(t.get_analog_years())
 
 
 
