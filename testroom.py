@@ -1,3 +1,4 @@
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
@@ -8,7 +9,17 @@ import pandas as pd
 from collections import defaultdict
 import math
 
+dek_dictionary = pickle.load(open('./datapath/dekads_dictionary', 'rb')) #a dictionary of dekads
 
+print(dek_dictionary)
+
+
+
+
+
+
+
+'''
 k = {1:[2010, 2011], 2:[1980, 1988, 2009], 3:[2003], 4:[2005, 2000], 5:[1997]}
 analog_col = []; analog_data = []; z = 0
 
@@ -28,8 +39,8 @@ plt.table(colLabels = ['Years'], rowLabels = analog_col, cellText = analog_data,
 plt.show()
 
 
-print(analog_data)
-		
+print(int('2018'))
+'''		
 
 
 

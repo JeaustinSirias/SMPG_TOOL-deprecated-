@@ -164,7 +164,6 @@ class proccess_data_to_plot():
 
 	def get_graph3_curves(self): #It'll be the assembly
 
-
 		graph2_curves = self.get_graph2_curves()
 
 		#this loop will take the [-1] element form the accumulated current year array and will start a new accumulation from this 
@@ -427,9 +426,10 @@ class proccess_data_to_plot():
 
 		return plt.show()
 
+##############################################################################################################################################
 
 
 
-class1 = proccess_data_to_plot(39, 1981, 2020, '1-Feb', '3-May', 1981, 2010)
-print(class1.get_graph3_curves())
+#class1 = proccess_data_to_plot(39, 1981, 2020, '1-Feb', '3-May', 1981, 2010)
+#print(class1.get_graph3_curves())
 

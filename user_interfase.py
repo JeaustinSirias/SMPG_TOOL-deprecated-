@@ -7,6 +7,8 @@ import pandas as pd
 from tkinter.ttk import *
 from tkinter.filedialog import askopenfile 
 import os
+from tkinter import filedialog
+
 
 #local packages
 from module import *
@@ -26,15 +28,9 @@ class mainFrame():
 		self.bg.pack()
 		self.cv_img = self.bg.create_image(0, 0, image = self.background, anchor = 'nw')
 
-
-
 		self.frame = Frame(master, width = 500, height = 400)
 		self.frame.pack()
-		#self.title = Label(self.bg, text = 'WELCOME TO THIS BETA VERSION OF SMPG TOOL', font = 50)
-		#self.title.pack(side = TOP)
-		#self.title.grid(row = 0, column = 1, pady = 25, columnspan = 6)
-		#self.title.config(justify = 'center')
-
+		
 		self.year_lst = np.arange(1980, 2021, 1)
 		self.dekad_lst = ['1-Jan', '2-Jan', '3-Jan', '1-Feb', '2-Feb', '3-Feb', '1-Mar', '2-Mar', '3-Mar', '1-Apr', '2-Apr', '3-Apr', '1-May', '2-May', '3-May', '1-Jun',
 		 					'2-Jun', '3-Jun', '1-Jul', '2-Jul', '3-Jul', '1-Aug', '2-Aug', '3-Aug', '1-Sep', '2-Sep', '3-Sep', '1-Oct', '2-Oct', '3-Oct', '1-Nov', '2-Nov', 
@@ -45,10 +41,17 @@ class mainFrame():
 		self.variable_end_dekad = StringVar(self.frame)
 
 		self.radio_button = IntVar(self.frame)
-		self.variable_init = IntVar(self.frame)
-		self.variable_end = IntVar(self.frame)
-		self.variable_init.set(self.year_lst[0])
-		self.variable_end.set(self.year_lst[0])
+		self.variable_rank = IntVar(self.frame)
+		self.variable_rank.set('')
+
+		#CHECKBUTTON
+		self.check = IntVar(self.frame)
+
+
+
+		#self.variable_end = IntVar(self.frame)
+		#self.variable_init.set(self.year_lst[0])
+		#self.variable_end.set(self.year_lst[0])
 
 		#climatology
 		self.variable_init_clim = IntVar(self.frame)
@@ -59,40 +62,40 @@ class mainFrame():
 
 		#LABELS
 		self.label0 = Label(self.frame, text = 'Set up climatology window')
-		self.label0.grid(row = 2, column = 1, columnspan = 4)
+		self.label0.grid(row = 0, column = 1, columnspan = 4)
 
-		self.label_clim1 = Label(self.frame, text = 'From:')
-		self.label_clim1.grid(row = 1, column = 1, padx = 10)
+		#self.label_clim1 = Label(self.frame, text = 'From:')
+		#self.label_clim1.grid(row = 1, column = 1, padx = 10)
 
-		self.label_clim2 = Label(self.frame, text = 'To:')
-		self.label_clim2.grid(row = 1, column = 3, padx = 10)
+		#self.label_clim2 = Label(self.frame, text = 'To:')
+		#self.label_clim2.grid(row = 1, column = 3, padx = 10)
 
-		self.labelz = Label(self.frame, text = 'Choose analysis preferences')
-		self.labelz.grid(row = 0, column = 1, columnspan = 4)
+		#self.labelz = Label(self.frame, text = 'Choose analysis preferences')
+		#self.labelz.grid(row = 0, column = 1, columnspan = 4)
 
 		self.labelz = Label(self.frame, text = 'Define a season to monitor')
-		self.labelz.grid(row = 4, column = 1, columnspan = 4, pady = 25)
+		self.labelz.grid(row = 2, column = 1, columnspan = 4, pady = 25)
 
 
 		self.label1 = Label(self.frame, text = 'Initial year:')
-		self.label1.grid(row = 3, column = 1, padx = 10)
+		self.label1.grid(row = 1, column = 1, padx = 10)
 
 		self.label2 = Label(self.frame, text = 'Final year:')
-		self.label2.grid(row = 3, column = 3, padx = 10)
+		self.label2.grid(row = 1, column = 3, padx = 10)
 
 	
 		self.label3 = Label(self.frame, text = 'From:')
-		self.label3.grid(row = 5, column = 1,)
+		self.label3.grid(row = 3, column = 1,)
 
 		self.label4 = Label(self.frame, text = 'to:')
-		self.label4.grid(row = 5, column = 3)
+		self.label4.grid(row = 3, column = 3)
 	
 
 		self.label5 = Label(self.frame, text = 'Select the number of analog years to compute:')
-		self.label5.grid(row = 6, column = 1, pady = 25, columnspan = 3)
+		self.label5.grid(row = 4, column = 1, pady = 25, columnspan = 3)
 
 		self.label6 = Label(self.frame, text = 'Specify max. rank to show:')
-		self.label6.grid(row = 7, column = 1, columnspan = 3)
+		self.label6.grid(row = 5, column = 1, columnspan = 3)
 
 		self.label7 = Label(self.frame, text = 'Computing preferences')
 		self.label7.grid(row = 5, column = 0)
@@ -101,44 +104,44 @@ class mainFrame():
 		#MENUS
 
 		self.init_clim = ttk.Combobox(self.frame, textvariable = self.variable_init_clim, values = tuple(self.year_lst))
-		self.init_clim.grid(row = 3, column = 2)
+		self.init_clim.grid(row = 1, column = 2)
 
 		self.end_clim = ttk.Combobox(self.frame, textvariable = self.variable_end_clim, values = tuple(self.year_lst))
-		self.end_clim.grid(row = 3, column = 4)
+		self.end_clim.grid(row = 1, column = 4)
 		
 		#start year option menu
-		self.ano_init = ttk.Combobox(self.frame, textvariable = self.variable_init, values = tuple(self.year_lst))
-		self.ano_init.grid(row = 1, column = 2)
+		#self.ano_init = ttk.Combobox(self.frame, textvariable = self.variable_init, values = tuple(self.year_lst))
+		#self.ano_init.grid(row = 1, column = 2)
 		#self.ano_init.pack()
 
 		#end year option menu
-		self.ano_fin = ttk.Combobox(self.frame, textvariable = self.variable_end, values = tuple(self.year_lst))
-		self.ano_fin.grid(row = 1, column = 4)
+		#self.ano_fin = ttk.Combobox(self.frame, textvariable = self.variable_end, values = tuple(self.year_lst))
+		#self.ano_fin.grid(row = 1, column = 4)
 		#self.ano_fin.pack()
 
 		#first dekad menu
 		self.start_dekad = ttk.Combobox(self.frame, textvariable = self.variable_init_dekad, values = tuple(self.dekad_lst))
-		self.start_dekad.grid(row = 5, column = 2)
+		self.start_dekad.grid(row = 3, column = 2)
 
 		#end dekad menu
 		self.end_dekad = ttk.Combobox(self.frame, textvariable = self.variable_end_dekad, values = tuple(self.dekad_lst))
-		self.end_dekad.grid(row = 5, column = 4)
+		self.end_dekad.grid(row = 3, column = 4)
 		
 		#ANALOG YEARS MENU
 		self.analog_menu  = ttk.Combobox(self.frame, textvariable = self.variable_analogs_lst, values = tuple(self.analogs_lst))
-		self.analog_menu.grid(row = 6, column = 4)
+		self.analog_menu.grid(row = 4, column = 4)
 
 		#RANK SELECTION MENU
-		self.rank_menu  = ttk.Combobox(self.frame, textvariable = self.variable_analogs_lst, values = tuple(self.analogs_lst))
-		self.rank_menu.grid(row = 7, column = 4)
+		self.rank_menu  = ttk.Combobox(self.frame, textvariable = self.variable_rank, values = tuple(self.analogs_lst))
+		self.rank_menu.grid(row = 5, column = 4)
 
 	
 ##############################################################################################################################################	
 		#BUTTONS
 
 		self.load_data_btn = Button(self.frame, text = 'COMPUTE INPUT DATA', command = lambda: mainFrame.compute_input_data(self, 
-																															int(self.ano_init.get()), 
-																															int(self.ano_fin.get()), 
+																															#int(self.ano_init.get()), 
+																															#int(self.ano_fin.get()), 
 																															str(self.start_dekad.get()), 
 																															str(self.end_dekad.get()),
 																															int(self.init_clim.get()),
@@ -148,9 +151,9 @@ class mainFrame():
 
 		
 		self.LT_avg_btn = Button(self.frame, text = 'GENERATE REPORTS', command = lambda: mainFrame.gen_reports(self, 
-																												int(self.analog_menu.get()), 
-																												int(self.ano_init.get()), 
-																												int(self.ano_fin.get()), 
+																												int(self.rank_menu.get()), 
+																												#int(self.ano_init.get()), 
+																												#int(self.ano_fin.get()), 
 																												str(self.start_dekad.get()), 
 																												str(self.end_dekad.get()),
 																												int(self.init_clim.get()),
@@ -167,12 +170,14 @@ class mainFrame():
 		#self.help_btn.configure(bg = 'red')
 		self.help_btn.grid(row = 8, column = 4, pady = 25)
 		
-
 		self.fct = Radiobutton(self.frame, text = 'Forecast', variable = self.radio_button, value = 0)
 		self.fct.grid(row = 6, column = 0)
 
 		self.analysis = Radiobutton(self.frame, text = 'Observed data', variable = self.radio_button, value = 1)
 		self.analysis.grid(row = 7, column = 0)
+
+		self.save_check = Checkbutton(self.frame, text = 'Save reports', variable = self.check)
+		self.save_check.grid(row = 3, column = 0)
 
 ##############################################################################################################################################
 
@@ -200,20 +205,43 @@ class mainFrame():
 
 ##############################################################################################################################################
 
-	def compute_input_data(self, init_year, end_year, fst_dek, lst_dek, init_clim, end_clim, analog_input):
+	def compute_input_data(self, fst_dek, lst_dek, init_clim, end_clim, analog_input):
 
-		if init_year == end_year:
-			tkinter.messagebox.showinfo('warning', 'Intial year and end year cannot be the same')
+		raw_data = pickle.load(open('data', 'rb')) #WHOLE RAW DATA
+		init_yr = int(raw_data[1][0][0:4])
+		end_yr = int(raw_data[1][-1][0:4])
+
+		if init_clim >= end_clim:
+			tkinter.messagebox.showerror('Error choosing climatology', 'Initial year cannot be greater or equal than end year')
 
 
 		else:
-			run = LT_procedures(init_year, end_year, fst_dek, lst_dek, init_clim, end_clim, analog_input)
+			run = LT_procedures(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analog_input)
 			run.get_analog_years()
 			tkinter.messagebox.showinfo('status', 'Dataset succesfully computed')
 
 ##############################################################################################################################################
 
-	def gen_reports(self, an_years, init_year, end_year, init_dek, end_dek, init_clim, end_clim):
+	def gen_reports(self, an_years, init_dek, end_dek, init_clim, end_clim):
+
+		raw_data = pickle.load(open('data', 'rb')) #WHOLE RAW DATA
+		init_year = int(raw_data[1][0][0:4])
+		end_year = int(raw_data[1][-1][0:4])
+
+
+		if self.check.get() == 1:
+			try:
+				dir_name = filedialog.askdirectory() # asks user to choose a directory
+				os. chdir(dir_name) #changes your current directory
+				curr_directory = os.getcwd()
+			#return curr_directory
+
+			except FileNotFoundError:
+				pass
+
+			except TypeError:
+				pass
+
 
 		if an_years == 0 or an_years == 1:
 			tkinter.messagebox.showerror('warning', 'More than 1 analog year must be chosen')
@@ -225,9 +253,8 @@ class mainFrame():
 ##############################################################################################################################################
 	
 	def clearFiles(self):
+
 		#clear menus:
-		self.ano_init.set('')
-		self.ano_fin.set('')
 		self.analog_menu.set('')
 		self.start_dekad.set('')
 		self.end_dekad.set('')
@@ -245,8 +272,26 @@ class mainFrame():
 		tkinter.messagebox.showinfo('status', 'All cleared!')
 
 ##############################################################################################################################################
+
+	def export_file(self):
+		try:
+			dir_name = filedialog.askdirectory() # asks user to choose a directory
+			os. chdir(dir_name) #changes your current directory
+			curr_directory = os.getcwd()
+			#return curr_directory
+
+		except FileNotFoundError:
+			pass
+
+		except TypeError:
+			pass
+
+
+
+
+##############################################################################################################################################
 root = Tk()
-#root.config(bg = 'blue')
+
 
 
 main = mainFrame(root)

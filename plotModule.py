@@ -60,7 +60,6 @@ class proccess_data_to_plot():
 
 		LTM = np.array(LTM)
 
-
 		#WE'RE GONNA GET STATICS BASED IN PLOTTABLE INFO FOR GRAPH 2
 		biggest_accum_row = [] #an array to hold the lastest accumulations for each year in chosen analogs
 		for i in np.arange(0, len(analog_curves), 1):
@@ -323,6 +322,7 @@ class proccess_data_to_plot():
 		stats_E = []
 		for i in np.arange(0, len(endSeasonRow), 1): #for each location in the array do:
 
+			Avg = np.mean(endSeasonRow_full[i])
 			Med = np.median(endSeasonRow_full[i])
 			thrd = np.percentile(endSeasonRow_full[i], 33)
 			sixth = np.percentile(endSeasonRow_full[i], 67)
@@ -330,7 +330,7 @@ class proccess_data_to_plot():
 			std_add = ensemble_avg[i][-1] + stDev
 			std_sub = ensemble_avg[i][-1] - stDev
 
-			stats_E.append([0, stDev, Med, thrd, sixth])
+			stats_E.append([Avg, stDev, Med, thrd, sixth])
 
 
 						
@@ -468,15 +468,19 @@ class proccess_data_to_plot():
 			#================================================TABLES==================================================
 			#ALL TABLES WILL NEED THE SAME COLUMNS: [ANALOGS, ALL YEARS]
 			#SETUP
-			Asummary.set_title('Summary Statistics')
+			Asummary.set_title('Summary Statistics. Season') #{a} - {b}'.format(a = self.init_dek, b = self.end_dek))
 			Asummary.axis('tight')
 			Asummary.axis('off')
 			col = ('Analog years', 'All years')
 
+			colC = ['coral']*len(col)
+			rowC = ['lightsteelblue']
+			headerColor = ['palegreen']
+
 
 			#=======================ANALOG YEARS RANKING TABLE===================
 
-			analog_row = []; analog_data = []; z = 0; y = 6
+			analog_row = []; analog_data = []; z = 0; y = self.analog_num
 			while y > 1:
 				y = y - z
 				ar = 'Top {top}'.format(top = y)
@@ -485,7 +489,7 @@ class proccess_data_to_plot():
 				analog_data.append(ad)
 				z = 1
 
-			Asummary.table(rowLabels = analog_row, colLabels = ['Analog years ranking'], cellText = analog_data, cellLoc = 'center', bbox = [0.1, 0.68, 0.8, 0.3], colColours = ['lightskyblue'], rowColours = ['bisque']*len(analog_row))
+			Asummary.table(rowLabels = analog_row, colLabels = ['Analog years ranking'], cellText = analog_data, cellLoc = 'center', bbox = [0.1, 0.7, 0.8, 0.3], colColours = colC, rowColours = rowC*len(analog_row))
 
 			#====================CLIMATOLOGICAL ANALYSIS TABLE===================
 
@@ -497,7 +501,7 @@ class proccess_data_to_plot():
 			LTA_perc =  (current_yr_accum[i][-1]/seasonalStats[i][-1])*100
 
 			#HEADER
-			Asummary.table(cellText = [[None]], colLabels = ['Climatological Analysis'], bbox = [0.2, 0.53, 0.7, 0.12 ], colColours = ['coral'])
+			Asummary.table(cellText = [[None]], colLabels = ['Climatological Analysis'], bbox = [0.2, 0.55, 0.7, 0.12 ], colColours = headerColor)
 
 
 			row = ['Seasonal Average', 'Seasonal Std. Dev', 'Seasonal median', 'Total at current dek.', 'LTA Value', 'LTA percentage']
@@ -508,12 +512,12 @@ class proccess_data_to_plot():
 					[round(analog_stats1[i][3],2), round(seasonalStats[i][-1], 2)], 
 					[round(LTA_percP, 2), round(LTA_perc, 2)]]
 
-			Asummary.table(rowLabels = row, colLabels = col, cellText = txt, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.3, 0.7, 0.3], colColours = ['coral']*len(col), rowColours = ['khaki']*len(row))
+			Asummary.table(rowLabels = row, colLabels = col, cellText = txt, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.32, 0.7, 0.3], colColours = colC, rowColours = rowC*len(row))
 
 			#====================CURRENT YEAR ANALYSIS [ENSEMBLE] TABLE===================
 
 			#HEADER
-			Asummary.table(cellText = [[None]], colLabels = ['Current year analysis: {yr}'.format(yr = self.end_yr)], bbox = [0.2, 0.14, 0.7, 0.12 ], colColours = ['violet'])
+			Asummary.table(cellText = [[None]], colLabels = ['Current year analysis: {yr}'.format(yr = self.end_yr)], bbox = [0.2, 0.16, 0.7, 0.12 ], colColours = headerColor)
 
 
 			seasonalAvgP = round(ensembleStats[i][0], 2)
@@ -529,18 +533,18 @@ class proccess_data_to_plot():
 					[round(ensembleStats[i][3], 2), round(ensembleStatsFull[i][3], 2)], 
 					[round(ensembleStats[i][4], 2), round(ensembleStatsFull[i][4], 2)], 
 					[LTAvalP, LTAval], 
-					[round(LTApercP, 2), LTAperc]]
+					[round(LTApercP, 2), round(LTAperc, 2)]]
 
-			Asummary.table(rowLabels = row_B, colLabels = col, cellText = data_B, loc = 'center', cellLoc = 'center', bbox = [0.2, -0.1, 0.7, 0.3], colColours = ['violet']*len(col), rowColours = ['palegreen']*len(row_B))
+			Asummary.table(rowLabels = row_B, colLabels = col, cellText = data_B, loc = 'center', cellLoc = 'center', bbox = [0.2, -0.08, 0.7, 0.3], colColours = colC, rowColours = rowC*len(row_B))
 
 			#===================OUTLOOK PROBABILITY TABLE=======================
 
 			#HEADER
-			Asummary.table(cellText = [[None]], colLabels = ['Outlook: Probability at the end of season'], bbox = [0.2, -0.25, 0.7, 0.12 ])
+			Asummary.table(cellText = [[None]], colLabels = ['Outlook: Probability at the end of season'], bbox = [0.2, -0.23, 0.7, 0.12 ], colColours = headerColor)
 
 			outlook_row = ['Above normal', 'Normal', 'Below normal']
-			data = [[12, 23], [45, 32], [45, 12]]
-			Asummary.table(rowLabels = outlook_row, colLabels = col, cellText = data, cellLoc = 'center', bbox = [0.2, -0.38, 0.7, 0.2])
+			data = [['None', 'None'], ['None', 'None'], ['None', 'None']]
+			Asummary.table(rowLabels = outlook_row, colLabels = col, cellText = data, cellLoc = 'center', bbox = [0.2, -0.36, 0.7, 0.2], colColours = colC, rowColours = rowC*len(outlook_row))
 
 
 
@@ -562,6 +566,6 @@ class proccess_data_to_plot():
 
 ##############################################################################################################################################
 
-sample = proccess_data_to_plot(None, 1981, 2020, '1-Feb', '3-May', 1981, 2010)
-sample.generate_reports()
+#sample = proccess_data_to_plot(None, 1981, 2020, '1-Feb', '3-May', 1981, 2010)
+#sample.generate_reports()
 #print(sample.seasonal_accumulations_plotting())
