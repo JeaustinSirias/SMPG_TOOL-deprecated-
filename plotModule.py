@@ -526,7 +526,7 @@ class proccess_data_to_plot():
 			LTApercP = (seasonalAvgP/LTAvalP)*100
 			LTAperc = (seasonalAvg/LTAval)*100
 
-			row_B = ['Seasonal Average', 'Seasonal Std. Dev', 'Seasonal median', '33rd. Percentile', '67th Percentile', 'LTA Value', 'LTA Percentage']
+			row_B = ['Ensemble Average', 'Ensemble Std. Dev', 'Ensemble median', '33rd. Percentile', '67th Percentile', 'LTA Val. End of season', 'LTA Percentage']
 			data_B =[[seasonalAvgP, seasonalAvg], 
 					[round(ensembleStats[i][1], 2), round(ensembleStatsFull[i][1], 2)], 
 					[round(ensembleStats[i][2], 2), round(ensembleStatsFull[i][2], 2)], 

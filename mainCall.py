@@ -6,13 +6,12 @@ from io import *
 import pandas as pd
 from tkinter.ttk import *
 from tkinter.filedialog import askopenfile 
-import os
+import os #operating system
 from tkinter import filedialog
 
 
 #local packages
-from module import *
-from plotModule import *
+from prueba import *
 
 
 class mainFrame():
@@ -21,7 +20,26 @@ class mainFrame():
 
 		self.titulo = master.title('SMPG-TOOL alpha_1.1c')
 
-		self.background = PhotoImage(file = '/home/jussc_/Downloads/logo.gif')
+		self.dek_dictionary = {'1-Jan': 1, '2-Jan': 2, 
+								'3-Jan': 3, '1-Feb': 4, 
+								'2-Feb': 5, '3-Feb': 6, 
+								'1-Mar': 7, '2-Mar': 8, 
+								'3-Mar': 9, '1-Apr': 10, 
+								'2-Apr': 11, '3-Apr': 12, 
+								'1-May': 13, '2-May': 14, 
+								'3-May': 15, '1-Jun': 16, 
+								'2-Jun': 17, '3-Jun': 18, 
+								'1-Jul': 19, '2-Jul': 20, 
+								'3-Jul': 21, '1-Aug': 22, 
+								'2-Aug': 23, '3-Aug': 24, 
+								'1-Sep': 25, '2-Sep': 26, 
+								'3-Sep': 27, '1-Oct': 28, 
+								'2-Oct': 29, '3-Oct': 30, 
+								'1-Nov': 31, '2-Nov': 32, 
+								'3-Nov': 33, '1-Dec': 34, 
+								'2-Dec': 35, '3-Dec': 36}
+
+		self.background = PhotoImage(file = '/home/jussc_/Downloads/back.gif')
 		self.bg = Canvas(master, width = 800, height = 100 )
 		self.bg.pack()
 		self.cv_img = self.bg.create_image(0, 0, image = self.background, anchor = 'nw')
@@ -41,6 +59,8 @@ class mainFrame():
 		self.radio_button = IntVar(self.frame)
 		self.variable_rank = IntVar(self.frame)
 		self.variable_rank.set('')
+
+		self.out = []
 
 		#CHECKBUTTON
 		self.check = IntVar(self.frame)
@@ -96,7 +116,7 @@ class mainFrame():
 		self.label6.grid(row = 5, column = 1, columnspan = 3)
 
 		self.label7 = Label(self.frame, text = 'Computing preferences')
-		self.label7.grid(row = 5, column = 0)
+		self.label7.grid(row = 4, column = 0)
 
 ##############################################################################################################################################		
 		#MENUS
@@ -137,27 +157,22 @@ class mainFrame():
 ##############################################################################################################################################	
 		#BUTTONS
 
-		self.load_data_btn = Button(self.frame, text = 'COMPUTE INPUT DATA', command = lambda: mainFrame.compute_input_data(self, 
-																															#int(self.ano_init.get()), 
-																															#int(self.ano_fin.get()), 
-																															str(self.start_dekad.get()), 
-																															str(self.end_dekad.get()),
-																															int(self.init_clim.get()),
-																															int(self.end_clim.get()),
-																															int(self.analog_menu.get())))
-		self.load_data_btn.grid(row = 2, column = 0, pady = 25)
-
 		
-		self.LT_avg_btn = Button(self.frame, text = 'GENERATE REPORTS', command = lambda: mainFrame.gen_reports(self, 
-																												int(self.rank_menu.get()), 
-																												#int(self.ano_init.get()), 
-																												#int(self.ano_fin.get()), 
+		self.load_data_btn = Button(self.frame, text = 'Advanced settings')
+		self.load_data_btn.grid(row = 6, column = 2, pady = 25)
+	
+		
+		self.LT_avg_btn = Button(self.frame, text = 'GENERATE REPORTS', command = lambda: mainFrame.gen_rep(self,
 																												str(self.start_dekad.get()), 
 																												str(self.end_dekad.get()),
 																												int(self.init_clim.get()),
-																												int(self.end_clim.get())))
+																												int(self.end_clim.get()),
+																												int(self.analog_menu.get()), 
+																												int(self.rank_menu.get())))
+																												
 																											
-		self.LT_avg_btn.grid(row = 4, column = 0)
+																											
+		self.LT_avg_btn.grid(row = 2, column = 0)
 		
 	
 		#browse button
@@ -166,13 +181,13 @@ class mainFrame():
 
 		self.help_btn = Button(self.frame, text = 'Clear', command = lambda: mainFrame.clearFiles(self))
 		#self.help_btn.configure(bg = 'red')
-		self.help_btn.grid(row = 8, column = 4, pady = 25)
+		self.help_btn.grid(row = 6, column = 4, pady = 25)
 		
 		self.fct = Radiobutton(self.frame, text = 'Forecast', variable = self.radio_button, value = 0)
-		self.fct.grid(row = 6, column = 0)
+		self.fct.grid(row = 5, column = 0)
 
 		self.analysis = Radiobutton(self.frame, text = 'Observed data', variable = self.radio_button, value = 1)
-		self.analysis.grid(row = 7, column = 0)
+		self.analysis.grid(row = 6, column = 0)
 
 		self.save_check = Checkbutton(self.frame, text = 'Save reports', variable = self.check)
 		self.save_check.grid(row = 3, column = 0)
@@ -195,37 +210,20 @@ class mainFrame():
 
 			#OUTPUT: returns a 3rd dim array with this features: [locations'_tags, header, raw data]
 			output = np.array([np.array(df.loc[1:][0]), np.array(header_str), np.array(df.loc[1:]).transpose()[1:].transpose()])
+			self.out = output
+			tkinter.messagebox.showinfo('Data loaded!', 'Input dataset goes from {init} to {end}'.format(init = output[1][0][0:4], end = output[1][-1][0:4]))
+
+
+			'''
 			array_out = open('data', 'wb') #write binary
 			pickle.dump(output, array_out)
 			tkinter.messagebox.showinfo('Data loaded!', 'Input dataset goes from {init} to {end}'.format(init = output[1][0][0:4], end = output[1][-1][0:4]))
 			array_out.close()
 			del(array_out)
-
+			'''
 ##############################################################################################################################################
 
-	def compute_input_data(self, fst_dek, lst_dek, init_clim, end_clim, analog_input):
-
-		raw_data = pickle.load(open('data', 'rb')) #WHOLE RAW DATA
-		init_yr = int(raw_data[1][0][0:4])
-		end_yr = int(raw_data[1][-1][0:4])
-
-		if init_clim >= end_clim:
-			tkinter.messagebox.showerror('Error choosing climatology', 'Initial year cannot be greater or equal than end year')
-
-
-		else:
-			run = LT_procedures(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analog_input)
-			run.get_analog_years()
-			tkinter.messagebox.showinfo('status', 'Dataset succesfully computed')
-
-##############################################################################################################################################
-
-	def gen_reports(self, an_years, init_dek, end_dek, init_clim, end_clim):
-
-		raw_data = pickle.load(open('data', 'rb')) #WHOLE RAW DATA
-		init_year = int(raw_data[1][0][0:4])
-		end_year = int(raw_data[1][-1][0:4])
-
+	def gen_rep(self, fst_dek, lst_dek, init_clim, end_clim, analog_num, analogRank):
 
 		if self.check.get() == 1:
 			try:
@@ -240,16 +238,30 @@ class mainFrame():
 			except TypeError:
 				pass
 
-
-		if an_years == 0 or an_years == 1:
+		if analog_num == 0 or analog_num == 1:
 			tkinter.messagebox.showerror('warning', 'More than 1 analog year must be chosen')
 
 		else:
-			report = proccess_data_to_plot(an_years, init_year, end_year, init_dek, end_dek, init_clim, end_clim)
-			report.generate_reports()
+			raw_data = self.out
+			init_yr = int(self.out[1][0][0:4])
+			end_yr = int(self.out[1][-1][0:4])
+			dek_dictionary = self.dek_dictionary
+
+			output_snack = get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim)
+			accumulations = rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek, dek_dictionary, output_snack)
+
+			call_sum_error_sqr = sum_error_sqr(accumulations) #we call the resulting RANK FOR SUM ERROR SQUARE
+			call_sum_dekad_error = sum_dekad_error(fst_dek, lst_dek, accumulations, dek_dictionary, output_snack) #we call the resulting RANK FOR SUM DEKAD error_sqr
+			analogs_dictionary = get_analog_years(init_yr, end_yr, analog_num, call_sum_error_sqr, call_sum_dekad_error)
+
+			stamp = seasonal_accumulations_plotting(accumulations, analogs_dictionary)
+			stamp2 = seasonal_accumulations(init_clim, end_clim, accumulations)
+			stamp3 = ensemble_plotting(init_yr, end_yr, lst_dek, init_clim, end_clim, output_snack, accumulations, analogs_dictionary, dek_dictionary)
+			
+			plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank, output_snack, accumulations, stamp, stamp2, stamp3, dek_dictionary, analogs_dictionary)
 
 ##############################################################################################################################################
-	
+
 	def clearFiles(self):
 
 		#clear menus:
@@ -259,6 +271,7 @@ class mainFrame():
 		self.init_clim.set('')
 		self.end_clim.set('')
 
+		'''
 		#clear files
 		try:
 			for i in ['data', './datapath/output_snack', './datapath/accumulations', './datapath/analogs']:
@@ -266,28 +279,11 @@ class mainFrame():
 
 		except FileNotFoundError:
 			a = 0
+		'''
 		
 		tkinter.messagebox.showinfo('status', 'All cleared!')
 
-##############################################################################################################################################
-
-	def export_file(self):
-		try:
-			dir_name = filedialog.askdirectory() # asks user to choose a directory
-			os. chdir(dir_name) #changes your current directory
-			curr_directory = os.getcwd()
-			#return curr_directory
-
-		except FileNotFoundError:
-			pass
-
-		except TypeError:
-			pass
-
-
-
-
-##############################################################################################################################################
+##############################################################################################################################
 root = Tk()
 
 
@@ -295,89 +291,3 @@ root = Tk()
 main = mainFrame(root)
 root.mainloop()
 
-
-
-
-
-
-'''
-class myFirstFrame():
-	
-	#PROPIEDADES
-	def __init__(self):
-
-		self.master = Tk()
-		self.titulo = self.master.title('SMPG-TOOL alpha_1.0a')
-		#self.wm_iconbitmap('earth.ico')
-		self.frame =  Frame(self.master)
-		self.frame.pack()
-		#self.get()
-		
-	#METODOS
-
-
-	#add a label to frame
-	def label(self, texto, fila, columna):
-		Label(self.frame, text = texto).grid(row = fila, column = columna)
-
-	#add a label to my frame
-	def button(self, texto, command):
-		#self.master = raiz
-		self.boton = Button(self.master, text = texto, command = lambda: command).pack()
-	
-
-	def textbox(self, fila, columna, Xspace, Yspace):
-		self.box = Entry(self.frame)
-		self.box.grid(row = fila, column = columna, padx = Xspace, pady = Yspace)
-		#return self.box.get()
-
-gui = myFirstFrame()
-
-
-#etiquetas
-gui.label('First year:', 1, 1)
-gui.label('End year:', 1, 3)
-
-#ventanas de entrada
-ano_init = gui.textbox(1, 2, 5, 5)
-ano_fin = gui.textbox(1, 4, 5, 5)
-
-
-
-
-#botones
-#gui.button('RUN LT AVERAGES', mean_plot(ano_init.get(), ano_fin.get()))
-#gui.button('Get accumulations', graph_1().func(str()))
-
-gui.master.mainloop()
-'''
-
-
-
-
-
-
-
-
-'''
-
-root = Tk()
-
-root.title('ventana')
-
-#root.iconbitmap('/home/jussc_/Desktop/smpg-tool/earth_1.gif')
-#root.geometry
-
-
-root.call('wm', 'iconphoto', root._w, PhotoImage(file = 'earth_1.gif'))
-
-myFrame = Frame()
-myFrame.pack(fill = 'both', expand = 'True')
-myFrame.config(bg = 'red', width = '650', height = '350')
-#myFrame.config(cursor = 'hand2')
-root.mainloop()
-
-
-#variableLabel = Label(contenedor, opciones)
-
-'''

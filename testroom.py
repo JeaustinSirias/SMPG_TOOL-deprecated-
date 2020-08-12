@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
@@ -8,13 +7,28 @@ from plotly.colors import n_colors
 import pandas as pd
 from collections import defaultdict
 import math
-
-dek_dictionary = pickle.load(open('./datapath/dekads_dictionary', 'rb')) #a dictionary of dekads
-
-print(dek_dictionary)
+from PIL import Image
 
 
 
+
+
+#OUTPUT SUMMARY DATAFRAME
+locNum = np.arange(0, 18, 1)
+
+datas = {'Code': ['None']*len(locNum),
+		 'pctofavgatdek': ['None']*len(locNum),
+		 'pctofavgatEOS': ['None']*len(locNum),
+		 'Above': ['None']*len(locNum),
+		 'Normal': ['None']*len(locNum),
+		 'Below': ['None']*len(locNum)
+		
+			}
+
+colNames = ['Code', 'pctofavgatdek', 'pctofavgatEOS', 'Above', 'Normal', 'Below']
+frame = pd.DataFrame(datas, columns = colNames )
+
+frame.to_csv('./summary.csv', index = False)
 
 
 
@@ -132,17 +146,29 @@ def input_data(input_d):
 		head =  str(header[i])[0:6]
 		header_str.append(head)
 
+	
+	locNames = np.array(df.loc[1:][0])
+
+	locs = []
+	for i in np.arange(0, len(locNames), 1):
+		try:
+			key = str(int(locNames[i]))
+			locs.append(key)
+
+		except ValueError:
+
+			key = locNames[i]
+			locs.append(key)
+
+
 	#returns a 3rd dim array with this features: [locations'_tags, header, raw data]
-	return np.array([np.array(df.loc[1:][0]), np.array(header_str), np.array(df.loc[1:]).transpose()[1:].transpose()])
+	return np.array([locs, np.array(header_str), np.array(df.loc[1:]).transpose()[1:].transpose()])
 
-print(input_data('data_hg.csv')[2].shape)
-
-
-
-
-rows = ['%d year' % x for x in (100, 50, 20, 10, 5)]
-
+print(input_data('ejemplo3.csv')[0])
 '''
+
+
+
 
 '''
 row = ['Seasonal Avgs', 'Seasonal std', 'Seasonal 33rd', 'Seasonal 67th']

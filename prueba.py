@@ -1,6 +1,9 @@
 
 #==========MODULES==============
 import numpy as np
+import numpy.random.common
+import numpy.random.bounded_integers
+import numpy.random.entropy
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.stats import rankdata
@@ -339,7 +342,6 @@ def seasonal_accumulations_plotting(): #a function that calcs the output to plot
 				z.append(k)
 		biggest_accum_row = np.array(biggest_accum_row)
 
-
 		#We need to get the next stats:
 		#SEASONAL AVERAGE
 		#SEASONAL STD DEV
@@ -570,6 +572,8 @@ def ensemble_plotting(init_yr, end_yr, end_dek, init_clim, end_clim):
 		stats_EP.append([ensemble_avg[i][-1], stDev, Med, thrd, sixth, std_add, std_sub])
 
 
+
+
 	#****************************************COMPUTING STATS FOR ENSEMBLE***************************************
 	#Seasonal average
 		#seasonal StDev
@@ -598,30 +602,86 @@ def ensemble_plotting(init_yr, end_yr, end_dek, init_clim, end_clim):
 
 		stats_E.append([Avg, stDev, Med, thrd, sixth])
 
-	return [ensemble_curves, ensemble_avg, stats_EP, stats_E]
+	#return endSeasonRow
+	return [ensemble_curves, ensemble_avg, stats_EP, stats_E, endSeasonRow, endSeasonRow_full]
 
 ##############################################################################################################################################
 
+def outlook_calc(endSeasonRow, stats):
+
+	ok = []
+	yearsNum = len(endSeasonRow[0])
+	for i in np.arange(0, len(endSeasonRow), 1):
+		a = 0; n = 0; b = 0
+		trd = stats[i][3]
+		sxth = stats[i][4]
+		for j in np.arange(0, yearsNum, 1):
+
+			subject = endSeasonRow[i][j]
+
+			if subject >= sxth:
+				a += 1
+
+			elif sxth > subject > trd:
+				n += 1
+
+			elif subject < trd:
+				b += 1
+
+		above = (a/yearsNum)*100
+		normal = (n/yearsNum)*100
+		below = (b/yearsNum)*100
+
+		ok.append([above, normal, below])
+
+	return ok
+
+##############################################################################################################################################
+
+def round2Darray(inputA):
+
+	output = []
+	for i in np.arange(0, len(inputA), 1):
+		op = []
+		output.append(op)
+		for j in np.arange(0, len(inputA[0]), 1):
+			out = int(round(inputA[i][j]))
+			op.append(out)
+
+	return output
+
+##############################################################################################################################################
 def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, analogRank):
 
 	#================================THIS SPACE IS TO PREPARE DATA TO BE LAUNCHED=====================================
 
 	#Function callouts:
-	current_yr_accum = accumulations[1].transpose() #contains the rainfall accumulated curve for current year. Plot in BLUE!
+	current_yr_accum = round2Darray(accumulations[1].transpose()) #contains the rainfall accumulated curve for current year. Plot in BLUE!
 	stamp = seasonal_accumulations_plotting() #accumulation curves for seasonal accumulations plot
 	stamp2 = seasonal_accumulations(init_clim, end_clim)
 	stamp3 = ensemble_plotting(init_yr, end_yr, lst_dek, init_clim, end_clim) #ensemble data to plot 
 
 	#data
 	climCurve = stamp2[0] #constant red lined curve based in climatology for seasonal accumulations and ensemble plots
-	seasonalStats = stamp2[1] #it contains the points ad the end of season: 33rd, 67th, stDev +/- Avg
+	seasonalStats = round2Darray(stamp2[1]) #it contains the points ad the end of season: 33rd, 67th, stDev +/- Avg
 	analog_curves = stamp[0]
 	analog_yrs = stamp[2]
-	analog_stats1 = stamp[1]#it contains the seasonal accumulation stats but based on analog years
+	analog_stats1 = round2Darray(stamp[1])#it contains the seasonal accumulation stats but based on analog years
 	curves_E = stamp3[0]
 	E_avgCurve = stamp3[1]
-	ensembleStats = stamp3[2]
-	ensembleStatsFull = stamp3[3]
+	ensembleStats = round2Darray(stamp3[2])
+	ensembleStatsFull = round2Darray(stamp3[3])
+
+	endSeasonRow = stamp3[4]
+	endSeasonRow_full = stamp3[5]
+
+	
+
+	#ADITIONAL CALC IS MADE HERE TO GET OUTLOOK:
+
+	#outlook_E = outlook_calc(endSeasonRow, seasonalStats)
+	outlook = outlook_calc(endSeasonRow_full, seasonalStats)
+
 
 	#============================================SETTING UP LINSPACES (x-axes)=======================================
 
@@ -751,12 +811,12 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 
 		#====================CLIMATOLOGICAL ANALYSIS TABLE===================
 
-		LTAvalP = round(analog_stats1[i][0], 2)
-		LTAval = round(seasonalStats[i][0], 2)
+		LTAvalP = analog_stats1[i][0]
+		LTAval = seasonalStats[i][0]
 
 
-		LTA_percP = (current_yr_accum[i][-1]/analog_stats1[i][3])*100
-		LTA_perc =  (current_yr_accum[i][-1]/seasonalStats[i][-1])*100
+		LTA_percP = int(round((current_yr_accum[i][-1]/analog_stats1[i][3])*100))
+		LTA_perc =  int(round((current_yr_accum[i][-1]/seasonalStats[i][-1])*100))
 
 		#HEADER
 		Asummary.table(cellText = [[None]], colLabels = ['Climatological Analysis'], bbox = [0.2, 0.55, 0.7, 0.12 ], colColours = headerColor)
@@ -764,11 +824,11 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 
 		row = ['Seasonal Average', 'Seasonal Std. Dev', 'Seasonal median', 'Total at current dek.', 'LTA Value', 'LTA percentage']
 		txt = [[LTAvalP, LTAval], 
-				[round(analog_stats1[i][1], 1), round(seasonalStats[i][1], 2)], 
-				[round(analog_stats1[i][2], 2), round(seasonalStats[i][2], 2)], 
-				[round(current_yr_accum[i][-1], 2), round(current_yr_accum[i][-1], 2)], 
-				[round(analog_stats1[i][3],2), round(seasonalStats[i][-1], 2)], 
-				[round(LTA_percP, 2), round(LTA_perc, 2)]]
+				[analog_stats1[i][1], seasonalStats[i][1]], 
+				[analog_stats1[i][2], seasonalStats[i][2]], 
+				[current_yr_accum[i][-1], current_yr_accum[i][-1]], 
+				[analog_stats1[i][3], seasonalStats[i][-1]], 
+				[LTA_percP, LTA_perc]]
 
 		Asummary.table(rowLabels = row, colLabels = col, cellText = txt, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.32, 0.7, 0.3], colColours = colC, rowColours = rowC*len(row))
 
@@ -778,20 +838,20 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 		Asummary.table(cellText = [[None]], colLabels = ['Current year analysis: {yr}'.format(yr = end_yr)], bbox = [0.2, 0.16, 0.7, 0.12 ], colColours = headerColor)
 
 
-		seasonalAvgP = round(ensembleStats[i][0], 2)
-		seasonalAvg = round(ensembleStatsFull[i][0], 2)
+		seasonalAvgP = ensembleStats[i][0]
+		seasonalAvg = ensembleStatsFull[i][0]
 		
-		LTApercP = (seasonalAvgP/LTAvalP)*100
-		LTAperc = (seasonalAvg/LTAval)*100
+		LTApercP = int(round((seasonalAvgP/LTAvalP)*100))
+		LTAperc = int(round((seasonalAvg/LTAval)*100))
 
 		row_B = ['Seasonal Average', 'Seasonal Std. Dev', 'Seasonal median', '33rd. Percentile', '67th Percentile', 'LTA Value', 'LTA Percentage']
 		data_B =[[seasonalAvgP, seasonalAvg], 
-				[round(ensembleStats[i][1], 2), round(ensembleStatsFull[i][1], 2)], 
-				[round(ensembleStats[i][2], 2), round(ensembleStatsFull[i][2], 2)], 
-				[round(ensembleStats[i][3], 2), round(ensembleStatsFull[i][3], 2)], 
-				[round(ensembleStats[i][4], 2), round(ensembleStatsFull[i][4], 2)], 
+				[ensembleStats[i][1], ensembleStatsFull[i][1]], 
+				[ensembleStats[i][2], ensembleStatsFull[i][2]], 
+				[ensembleStats[i][3], ensembleStatsFull[i][3]], 
+				[ensembleStats[i][4], ensembleStatsFull[i][4]], 
 				[LTAvalP, LTAval], 
-				[round(LTApercP, 2), round(LTAperc, 2)]]
+				[LTApercP, LTAperc]]
 
 		Asummary.table(rowLabels = row_B, colLabels = col, cellText = data_B, loc = 'center', cellLoc = 'center', bbox = [0.2, -0.08, 0.7, 0.3], colColours = colC, rowColours = rowC*len(row_B))
 
@@ -806,22 +866,24 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 
 		fig.align_labels()
 	
-	return plt.show()
+	return np.array(outlook)
+	
 
 ##############################################################################################################################################
+
 
 
 #=============
 #    MAIN
 #=============
 
-raw_data = input_data('data_hg.csv')
+raw_data = input_data('ejemplo2.csv')
 init_yr = int(raw_data[1][0][0:4])
 end_yr = int(raw_data[1][-1][0:4])
 analogRank = 5
-analog_num = 10
+analog_num = 15
 fst_dek = '1-Feb'
-lst_dek = '3-Jun'
+lst_dek = '1-Jul'
 init_clim = 1985
 end_clim = 2010
 dek_dictionary = {'1-Jan': 1, '2-Jan': 2, 
@@ -843,15 +905,13 @@ dek_dictionary = {'1-Jan': 1, '2-Jan': 2,
 				'3-Nov': 33, '1-Dec': 34, 
 				'2-Dec': 35, '3-Dec': 36}
 
-
 #stage 1
 output_snack = get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim)
 accumulations = rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek)
 analogs_dictionary = get_analog_years(init_yr, end_yr, analog_num)
 
 plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank)
-
-
+print(plot.transpose()[0])
 
 #stage 2
 
