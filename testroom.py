@@ -10,9 +10,73 @@ import math
 from PIL import Image
 
 
+a = []
+for i in np.arange(0, 16, 1):
+
+	k = i**2
+	a.append(k)
+print(a)
+print(a[5:-1])
 
 
 
+'''
+import tkinter as tk
+
+class MainWindow(tk.Frame):
+    counter = 0
+    def __init__(self, *args, **kwargs):
+        tk.Frame.__init__(self, *args, **kwargs)
+        self.button = tk.Button(self, text="Create new window", 
+                                command=self.create_window)
+        self.button.pack(side="top")
+
+    def create_window(self):
+        self.counter += 1
+        t = tk.Toplevel(self)
+        t.wm_title("Window #%s" % self.counter)
+        l = tk.Label(t, text="This is window #%s" % self.counter)
+        l.pack(side="top", fill="both", expand=True, padx=100, pady=100)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    main = MainWindow(root)
+    main.pack(side="top", fill="both", expand=True)
+    root.mainloop()
+'''
+'''
+dir_path = ''
+
+def inPut():
+    indir = filedialog.askdirectory(parent=root,initialdir="/",title='Input Folder')
+    indir = str(indir)
+    dir_path = os.path.dirname(indir)
+    entry.delete(0, END)
+    entry.insert(0, dir_path)
+    return dir_path
+
+root = Tk()
+root.geometry("640x240")
+root.title("Settings")
+
+frametop = Frame(root)
+framebottom = Frame(root)
+frameright = Frame(framebottom)
+
+text = Label(frametop, text="Input Folder").grid(row=5, column=2)
+entry = Entry(frametop, width=50, text=dir_path)
+entry.grid(row=5,column=4,padx=2,pady=2,sticky='we',columnspan=20)
+
+ButtonA = Button(frametop, text="Change", command=inPut).grid(row=5, column=28)
+ButtonB = Button(frameright, text="OK").grid(row=5, column=20, padx=10)
+
+frametop.pack(side=TOP, fill=BOTH, expand=1)
+framebottom.pack(side=BOTTOM, fill=BOTH, expand=1)
+frameright.pack(side=RIGHT)
+
+root.mainloop()
+'''
+'''
 #OUTPUT SUMMARY DATAFRAME
 locNum = np.arange(0, 18, 1)
 
@@ -29,7 +93,7 @@ colNames = ['Code', 'pctofavgatdek', 'pctofavgatEOS', 'Above', 'Normal', 'Below'
 frame = pd.DataFrame(datas, columns = colNames )
 
 frame.to_csv('./summary.csv', index = False)
-
+'''
 
 
 

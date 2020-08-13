@@ -691,6 +691,22 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 	currentYr = np.arange(0, len(current_yr_accum[0]), 1) #current year linspace size
 	seasonLabels = list(dek_dictionary.keys())[dek_dictionary[init_dek]-1:dek_dictionary[end_dek]]
 
+
+
+	LTAcalcs = []
+	for i in locNum:
+
+		LTAvalP = analog_stats1[i][0]
+		LTAval = seasonalStats[i][0]
+		LTA_percP = int(round((current_yr_accum[i][-1]/analog_stats1[i][3])*100))
+		LTA_perc =  int(round((current_yr_accum[i][-1]/seasonalStats[i][-1])*100))
+		seasonalAvgP = ensembleStats[i][0]
+		seasonalAvg = ensembleStatsFull[i][0]
+		LTApercP = int(round((seasonalAvgP/LTAvalP)*100))
+		LTAperc = int(round((seasonalAvg/LTAval)*100))
+
+		LTAcalcs.append([LTApercP, LTA_perc, LTApercP, LTAperc])
+
 	#=====================================SETTING UP SUBPLOTS/loop starts here=======================================
 
 	for i in locNum:
@@ -810,7 +826,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 		Asummary.table(rowLabels = analog_row, colLabels = ['Analog years ranking'], cellText = analog_data, cellLoc = 'center', bbox = [0.1, 0.7, 0.8, 0.3], colColours = colC, rowColours = rowC*len(analog_row))
 
 		#====================CLIMATOLOGICAL ANALYSIS TABLE===================
-
+	
 		LTAvalP = analog_stats1[i][0]
 		LTAval = seasonalStats[i][0]
 
@@ -866,7 +882,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 
 		fig.align_labels()
 	
-	return np.array(outlook)
+	return np.array(LTAcalcs).transpose()
 	
 
 ##############################################################################################################################################
@@ -911,7 +927,7 @@ accumulations = rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek)
 analogs_dictionary = get_analog_years(init_yr, end_yr, analog_num)
 
 plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank)
-print(plot.transpose()[0])
+print(plot)
 
 #stage 2
 
