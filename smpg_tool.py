@@ -812,6 +812,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 	for i in locNum:
 
 		fig = plt.figure(num = i, tight_layout = True, figsize = (16, 9)) #figure number. There will be a report for each processed location
+		fig.canvas.set_window_title('Code: {}'.format(output_snack[4][i]))
 		fig_grid = gridspec.GridSpec(2,3) #we set a 2x2 grid space to place subplots
 		avg_plot = fig.add_subplot(fig_grid[0, 0:2])
 		seasonal_accum_plot = fig.add_subplot(fig_grid[1, 0])
@@ -851,10 +852,10 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 		for j in yrSize:
 
 			#SEASONAL ACUMULATIONS
-			seasonal_accum_plot.plot(seasonSize, analog_curves[i][j], lw = 2, label = '{yr}'.format(yr = analog_yrs[i][j])) #accumulation curves
+			seasonal_accum_plot.plot(seasonSize, analog_curves[i][j], lw = 1.5, label = '{yr}'.format(yr = analog_yrs[i][j])) #accumulation curves
 
 			#ENSEMBLE
-			ensemble_plot.plot(seasonSize, curves_E[i][j], lw = 2, label = '{yr}'.format(yr = analog_yrs[i][j]))
+			ensemble_plot.plot(seasonSize, curves_E[i][j], lw = 1.5, label = '{yr}'.format(yr = analog_yrs[i][j]))
 
 
 		###############SEASONAL ACCUMULATIONS
@@ -865,7 +866,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 			seasonal_accum_plot.plot(x_ax, current_yr_fct[i], color = 'm', lw = 5, label = 'Forecast') #FORECAST
 
 		seasonal_accum_plot.plot(currentYr, current_yr_accum[i], color = 'b', lw = 5, label = '{}'.format(end_yr)) #current year
-		seasonal_accum_plot.fill_between(seasonSize, (climCurve[i])*1.2, (climCurve[i])*0.8, color = 'lightblue' ) #120 - 80% curve
+		seasonal_accum_plot.fill_between(seasonSize, (climCurve[i])*1.2, (climCurve[i])*0.8, color = 'lightblue', label = '120-80%' ) #120 - 80% curve
 
 
 		#stats
@@ -887,7 +888,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 		###############ENSEMBLE
 		ensemble_plot.plot(seasonSize, E_avgCurve[i], '--', color = 'k', lw = 2, label = 'ELTM')
 		ensemble_plot.plot(seasonSize, climCurve[i], color = 'r', lw = 5, label = 'LTM') #average
-		ensemble_plot.fill_between(seasonSize, (climCurve[i])*1.2, (climCurve[i])*0.8, color = 'lightblue' ) #120 - 80% curve
+		ensemble_plot.fill_between(seasonSize, (climCurve[i])*1.2, (climCurve[i])*0.8, color = 'lightblue', label = '120-80%' ) #120 - 80% curve
 		ensemble_plot.plot(currentYr, current_yr_accum[i], color = 'b', lw = 5, label = '{}'.format(end_yr)) #current year
 
 		#statics
@@ -952,7 +953,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 		Asummary.table(cellText = [[None]], colLabels = ['Climatological Analysis'], bbox = [0.2, 0.55, 0.7, 0.12 ], colColours = headerColor)
 
 
-		row = ['Seasonal Average', 'Seasonal Std. Dev', 'Seasonal median', 'Total at current dek.', 'LTA Value', 'LTA percentage']
+		row = ['Seasonal Average', 'Seasonal Std. Dev', 'Seasonal median', 'Total at current dek.', 'LTA Value', 'Current Dek. LTA %']
 		txt = [[LTAvalP, LTAval], 
 				[analog_stats1[i][1], seasonalStats[i][1]], 
 				[analog_stats1[i][2], seasonalStats[i][2]], 
@@ -974,7 +975,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 		#LTApercP = int(round((seasonalAvgP/LTAvalP)*100))
 		#LTAperc = int(round((seasonalAvg/LTAval)*100))
 
-		row_B = ['Ensemble Average', 'Ensemble Std. Dev', 'Ensemble median', '33rd. Percentile', '67th. Percentile', 'LTA Value', 'LTA Percentage']
+		row_B = ['Ensemble Average', 'Ensemble Std. Dev', 'Ensemble median', '33rd. Percentile', '67th. Percentile', 'LTA Value', 'End of Season LTA %']
 		data_B =[[ensembleStats[i][0], ensembleStatsFull[i][0]], 
 				[ensembleStats[i][1], ensembleStatsFull[i][1]], 
 				[ensembleStats[i][2], ensembleStatsFull[i][2]], 
@@ -1304,8 +1305,8 @@ class mainFrame():
 			disp_rep = False
 
 
-		output_snack = get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim, False)
-		accumulations = rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek, dek_dictionary, output_snack, False)
+		output_snack = get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim, True)
+		accumulations = rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek, dek_dictionary, output_snack, True)
 
 		call_sum_error_sqr = sum_error_sqr(accumulations) #we call the resulting RANK FOR SUM ERROR SQUARE
 		call_sum_dekad_error = sum_dekad_error(fst_dek, lst_dek, accumulations, dek_dictionary, output_snack) #we call the resulting RANK FOR SUM DEKAD error_sqr
@@ -1315,7 +1316,7 @@ class mainFrame():
 		stamp2 = seasonal_accumulations(init_clim, end_clim, accumulations)
 		stamp3 = ensemble_plotting(init_yr, end_yr, lst_dek, init_clim, end_clim, output_snack, accumulations, analogs_dictionary, dek_dictionary)
 		
-		plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank, output_snack, accumulations, stamp, stamp2, stamp3, dek_dictionary, analogs_dictionary, curr_directory, status, disp_rep, False)
+		plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank, output_snack, accumulations, stamp, stamp2, stamp3, dek_dictionary, analogs_dictionary, curr_directory, status, disp_rep, True)
 
 		tkinter.messagebox.showinfo('Notification!', 'Done! Reports computed')
 ##############################################################################################################################################
