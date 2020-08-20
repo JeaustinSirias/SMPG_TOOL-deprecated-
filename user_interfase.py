@@ -289,7 +289,7 @@ class mainFrame():
 
 ##############################################################################################################################################
 root = Tk()
-
+root.call('wm', 'iconphoto', root._w, PhotoImage(file = './earth.gif'))
 
 
 main = mainFrame(root)

@@ -10,15 +10,53 @@ import math
 from PIL import Image
 
 
-a = []
-for i in np.arange(0, 16, 1):
-
-	k = i**2
-	a.append(k)
-print(a)
-print(a[5:-1])
 
 
+t = []; y = 0; k = 1; analogs = 5
+
+while y < analogs:
+    
+    y += k
+    t.append(y)
+
+print(t)
+
+
+'''
+from tkinter import *
+newGameWindow = Toplevel()
+newGameWindow.title("New Game")
+newGameWindow.config(bg = "grey")
+newGameWindow.geometry('600x600')
+
+
+courtImg = PhotoImage('earth.gif')
+
+
+photo = Label(newGameWindow, image= courtImg, height = 200, width =200)
+photo.image = courtImg
+photo.pack()
+
+newGameWindow.mainloop()
+'''
+
+'''
+from tkinter import *
+
+def make_label(parent, img):
+    label = Label(parent, image=img)
+    label.grid()
+
+if __name__ == '__main__':
+    root = Tk()
+    frame = Frame(root, width=400, height=600, background='white')
+    #frame.pack_propagate(0)    
+    frame.pack()
+    img = PhotoImage(file='./earth.gif')
+    make_label(frame, img)
+
+    root.mainloop()
+'''
 
 '''
 import tkinter as tk
@@ -35,8 +73,15 @@ class MainWindow(tk.Frame):
         self.counter += 1
         t = tk.Toplevel(self)
         t.wm_title("Window #%s" % self.counter)
-        l = tk.Label(t, text="This is window #%s" % self.counter)
-        l.pack(side="top", fill="both", expand=True, padx=100, pady=100)
+        k = 0
+        for var in [1, 2, 3, 4, 5]:
+
+        	tk.Label(t, text='LABEL {}'.format(var)).grid(row = k, column = 0)
+        	k += 2
+
+       # button = tk.Button(t, text = 'button A')
+       # button.pack()
+       #l.pack(side="top", fill="both", expand=True, padx=100, pady=100)
 
 if __name__ == "__main__":
     root = tk.Tk()

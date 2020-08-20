@@ -165,13 +165,15 @@ def rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek):
 
 def sum_error_sqr(): #computes the square of substraction between the biggest accumulations 
 		
+		dekNum = len(accumulations[1].transpose()[0]) - 1 #number of dekads in current year
+		
 		error_sqr = []
 		for i in np.arange(0, len(accumulations[0]), 1):
 			local_sums = []
 			error_sqr.append(local_sums)
 			for j in np.arange(0, len(accumulations[0][0]), 1):
 
-				sqr_error = (accumulations[1].transpose()[i][-1] - accumulations[0][i][j][-1])**2
+				sqr_error = (accumulations[1].transpose()[i][-1] - accumulations[0][i][j][dekNum])**2
 				local_sums.append(sqr_error)
 
 		error_sqr = np.array(error_sqr) #this array must have a shape like [num_locations, num_years]
@@ -181,7 +183,10 @@ def sum_error_sqr(): #computes the square of substraction between the biggest ac
 			rank =  rankdata(error_sqr[i], method = 'ordinal')
 			sum_error_sqr_rank.append(rank)
 
+		
+		#return (accumulations[0][0][0][-3] - accumulations[1].transpose()[0][-1])**2
 		return np.array(sum_error_sqr_rank) #ULTIMATE OUTPUT
+		#return len(accumulations[1].transpose()[0])
 
 ##############################################################################################################################################
 
@@ -648,7 +653,7 @@ def round2Darray(inputA):
 			out = int(round(inputA[i][j]))
 			op.append(out)
 
-	return output
+	return np.array(output)
 
 ##############################################################################################################################################
 def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, analogRank):
@@ -882,7 +887,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 
 		fig.align_labels()
 	
-	return np.array(LTAcalcs).transpose()
+	return ensembleStatsFull.transpose()  #plt.show()
 	
 
 ##############################################################################################################################################
@@ -893,13 +898,13 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 #    MAIN
 #=============
 
-raw_data = input_data('ejemplo2.csv')
+raw_data = input_data('ejemplo3.csv')
 init_yr = int(raw_data[1][0][0:4])
 end_yr = int(raw_data[1][-1][0:4])
 analogRank = 5
-analog_num = 15
+analog_num = 34
 fst_dek = '1-Feb'
-lst_dek = '1-Jul'
+lst_dek = '3-May'
 init_clim = 1985
 end_clim = 2010
 dek_dictionary = {'1-Jan': 1, '2-Jan': 2, 
@@ -924,7 +929,10 @@ dek_dictionary = {'1-Jan': 1, '2-Jan': 2,
 #stage 1
 output_snack = get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim)
 accumulations = rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek)
+#suma = sum_error_sqr()
+#err = sum_dekad_error(fst_dek, lst_dek)
 analogs_dictionary = get_analog_years(init_yr, end_yr, analog_num)
+
 
 plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank)
 print(plot)
