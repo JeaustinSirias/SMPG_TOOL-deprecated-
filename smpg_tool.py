@@ -2,9 +2,9 @@ from tkinter import *
 import tkinter.messagebox
 import ttk
 import numpy as np
-import numpy.random.common
-import numpy.random.bounded_integers
-import numpy.random.entropy
+#import numpy.random.common
+#import numpy.random.bounded_integers
+#import numpy.random.entropy
 import matplotlib.pyplot as plt
 from scipy.stats import rankdata
 from collections import defaultdict
@@ -865,7 +865,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 			x_ax = np.arange(0, len(current_yr_fct[0]), 1)
 			seasonal_accum_plot.plot(x_ax, current_yr_fct[i], color = 'm', lw = 5, label = 'Forecast') #FORECAST
 
-		seasonal_accum_plot.plot(currentYr, current_yr_accum[i], color = 'b', lw = 5, label = '{}'.format(end_yr)) #current year
+		seasonal_accum_plot.plot(currentYr, current_yr_accum[i], color = 'k', lw = 5, label = '{}'.format(end_yr)) #current year
 		seasonal_accum_plot.fill_between(seasonSize, (climCurve[i])*1.2, (climCurve[i])*0.8, color = 'lightblue', label = '120-80%' ) #120 - 80% curve
 
 
@@ -889,7 +889,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 		ensemble_plot.plot(seasonSize, climCurve[i], color = 'r', lw = 5, label = 'LTM') #average
 		ensemble_plot.plot(seasonSize, E_avgCurve[i], '--', color = 'k', lw = 2, label = 'ELTM') #dooted line
 		ensemble_plot.fill_between(seasonSize, (climCurve[i])*1.2, (climCurve[i])*0.8, color = 'lightblue', label = '120-80%' ) #120 - 80% curve
-		ensemble_plot.plot(currentYr, current_yr_accum[i], color = 'b', lw = 5, label = '{}'.format(end_yr)) #current year
+		ensemble_plot.plot(currentYr, current_yr_accum[i], color = 'k', lw = 5, label = '{}'.format(end_yr)) #current year
 
 		#statics
 		ensemble_plot.plot([seasonSize[-1]], [seasonalStats[i][5]], marker='^', markersize=7, color="green", label = 'Avg+Std')
@@ -971,7 +971,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 							[analog_stats1[i][3], seasonalStats[i][-1]], 
 									[LTAcalcs[i][0], LTAcalcs[i][1]]]
 
-		Asummary.table(rowLabels = assessmentRow, colLabels = col, cellText = assessmentData, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.23, 0.7, 0.19], colColours = colC, rowColours = rowC*len(row))
+		Asummary.table(rowLabels = assessmentRow, colLabels = col, cellText = assessmentData, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.23, 0.7, 0.15], colColours = colC, rowColours = rowC*len(row))
 		
 		#====================CURRENT YEAR ANALYSIS [ENSEMBLE] TABLE===================
 
@@ -996,7 +996,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 
 		outlook_row = ['Above normal', 'Normal', 'Below normal']
 		data = [[round(outlook_E[i][0]), round(outlook[i][0])], [round(outlook_E[i][1]), round(outlook[i][1])], [round(outlook_E[i][2]), round(outlook[i][2])]]
-		Asummary.table(rowLabels = outlook_row, colLabels = col, cellText = data, cellLoc = 'center', bbox = [0.2, -0.42, 0.7, 0.2], colColours = colC, rowColours = rowC*len(outlook_row))
+		Asummary.table(rowLabels = outlook_row, colLabels = col, cellText = data, cellLoc = 'center', bbox = [0.2, -0.42, 0.7, 0.15], colColours = colC, rowColours = rowC*len(outlook_row))
 
 		fig.align_labels()
 		if saveStatus == True:
@@ -1038,7 +1038,7 @@ class mainFrame():
 								'3-Nov': 33, '1-Dec': 34, 
 								'2-Dec': 35, '3-Dec': 36}
 
-		self.background = PhotoImage(file = './background.gif')
+		self.background = PhotoImage(file = './res/background.gif')
 		self.bg = Canvas(master, width = 800, height = 100 )
 		self.bg.pack()
 		self.cv_img = self.bg.create_image(0, 0, image = self.background, anchor = 'nw')
@@ -1055,7 +1055,7 @@ class mainFrame():
 		 					'2-Jun', '3-Jun', '1-Jul', '2-Jul', '3-Jul', '1-Aug', '2-Aug', '3-Aug', '1-Sep', '2-Sep', '3-Sep', '1-Oct', '2-Oct', '3-Oct', '1-Nov', '2-Nov', 
 		 					'3-Nov', '1-Dec', '2-Dec', '3-Dec']
 		self.analogs_lst = np.arange(1, 40, 1)
-		self.ranklst = np.arange(2, 11, 1)
+		self.ranklst = np.arange(2, 7, 1)
 		self.variable_analogs_lst = IntVar(self.frame)
 		self.variable_init_dekad = StringVar(self.frame)
 		self.variable_end_dekad = StringVar(self.frame)
@@ -1363,6 +1363,7 @@ class mainFrame():
 		self.end_dekad.set('')
 		self.init_clim.set('')
 		self.end_clim.set('')
+		self.rank_menu.set('')
 		
 		tkinter.messagebox.showinfo('status', 'All cleared')
 
@@ -1396,7 +1397,7 @@ class mainFrame():
 
 
 root = Tk()
-root.call('wm', 'iconphoto', root._w, PhotoImage(file = './earth.gif'))
+root.call('wm', 'iconphoto', root._w, PhotoImage(file = './res/earth.gif'))
 main = mainFrame(root)
 root.mainloop()
 
