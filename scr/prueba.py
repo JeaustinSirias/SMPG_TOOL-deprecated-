@@ -24,9 +24,13 @@ def input_data(input_d):
 		head =  str(header[i])[0:6]
 		header_str.append(head)
 
-	#returns a 3rd dim array with this features: [locations'_tags, header, raw data]
-	return np.array([np.array(df.loc[1:][0]), np.array(header_str), np.array(df.loc[1:]).transpose()[1:].transpose()])
+	raw = np.array(df.loc[1:]).transpose()[1:-1].transpose()
+	scenarios = np.array(df.loc[1:]).transpose()[-1].transpose()
+	scenarios = [float(scenarios[i]) for i in np.arange(0, len(scenarios), 1) if scenarios[i] != None]
 
+	#returns a 3rd dim array with this features: [locations'_tags, header, raw data]
+	#return np.array([np.array(df.loc[1:][0]), np.array(header_str), np.array(df.loc[1:]).transpose()[1:].transpose()])
+	return scenarios
 ##############################################################################################################################################
 
 def compute_median(init_yr, end_yr, data_in): #data_in is the raw input file
@@ -898,7 +902,11 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 #    MAIN
 #=============
 
-raw_data = input_data('ejemplo3.csv')
+raw_data = input_data('/home/jussc_/Desktop/SMPG_TOOL_DEV/datapath/ss.csv')
+
+print(raw_data)
+
+'''
 init_yr = int(raw_data[1][0][0:4])
 end_yr = int(raw_data[1][-1][0:4])
 analogRank = 5
@@ -934,15 +942,15 @@ accumulations = rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek)
 analogs_dictionary = get_analog_years(init_yr, end_yr, analog_num)
 
 
-plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank)
-print(plot)
-
-#stage 2
+analogs = analogs_dictionary[1]
+locations = raw_data[0]
 
 
 
+#plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank)
+#print(plot)
 
-
+'''
 
 
 
