@@ -18,7 +18,7 @@ def input_data(input_d):
 	df = pd.DataFrame(data)
 
 	#SETUP HEADER AS STRING LIKE 'YEAR|DEK' FIRST 4 CHARACTERS DEFINE YEAR AND LAST 2 CHARACTERS DEFINE ITS DEK
-	header = list(df.loc[0][1:])
+	header = list(df.loc[0][1:-1])
 	header_str = []
 	for i in np.arange(0, len(header), 1):
 		head =  str(header[i])[0:6]
@@ -29,8 +29,9 @@ def input_data(input_d):
 	scenarios = [float(scenarios[i]) for i in np.arange(0, len(scenarios), 1) if scenarios[i] != None]
 
 	#returns a 3rd dim array with this features: [locations'_tags, header, raw data]
-	#return np.array([np.array(df.loc[1:][0]), np.array(header_str), np.array(df.loc[1:]).transpose()[1:].transpose()])
-	return scenarios
+	return np.array([np.array(df.loc[1:][0]), np.array(header_str), raw, scenarios])
+	
+	
 ##############################################################################################################################################
 
 def compute_median(init_yr, end_yr, data_in): #data_in is the raw input file
@@ -902,11 +903,14 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 #    MAIN
 #=============
 
-raw_data = input_data('/home/jussc_/Desktop/SMPG_TOOL_DEV/datapath/ss.csv')
+raw_data = input_data('/home/jussc_/Desktop/SMPG_TOOL_DEV/datapath/ejemplo1.csv')
+#raw_data2 = input_data('/home/jussc_/Desktop/SMPG_TOOL_DEV/datapath/exp.csv')
 
-print(raw_data)
 
-'''
+#print(raw_data)
+#print(raw_data2)
+
+
 init_yr = int(raw_data[1][0][0:4])
 end_yr = int(raw_data[1][-1][0:4])
 analogRank = 5
@@ -934,23 +938,62 @@ dek_dictionary = {'1-Jan': 1, '2-Jan': 2,
 				'3-Nov': 33, '1-Dec': 34, 
 				'2-Dec': 35, '3-Dec': 36}
 
-#stage 1
+
 output_snack = get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim)
 accumulations = rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek)
-#suma = sum_error_sqr()
-#err = sum_dekad_error(fst_dek, lst_dek)
+suma = sum_error_sqr()
+err = sum_dekad_error(fst_dek, lst_dek)
 analogs_dictionary = get_analog_years(init_yr, end_yr, analog_num)
 
-
-analogs = analogs_dictionary[1]
+ranked = analogs_dictionary[1]
 locations = raw_data[0]
+
+
+
+def AnalogsTab(dictionary, locNames):
+
+	data = []
+	for i in np.arange(0, len(dictionary), 1):
+		scan = []
+		data.append(scan)
+		for j in np.arange(1, 11, 1):
+			rank = dictionary[i][j]
+			scan.append(rank)
+
+	#organize table components
+	summary = np.array(data).transpose()
+	colNames = ['analog_{}'.format(i) for i in np.arange(1, 11, 1)]
+	data = dict(zip(colNames, summary))
+
+	#generate table
+	df = pd.DataFrame(data = data, index = locNames)
+	table = df.to_csv('./analogs_years.csv')
+
+
+AnalogsTab(ranked, locations)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#analogs = analogs_dictionary[1]
+#locations = raw_data[0]
 
 
 
 #plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank)
 #print(plot)
-
-'''
 
 
 

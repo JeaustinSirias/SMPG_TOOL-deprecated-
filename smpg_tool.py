@@ -116,13 +116,13 @@ def get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim, fc
 
 	#OUTPUT OPERATIONS
 	#this output gives an array with these specs: [average based ]					  [location labels]	[climatology_graph1]
-	output = np.array([full_data_median, actual_year, raw_years, actual_year_no_None, raw_data[0], mean_clim, forecast, current_year_fct])
+	output = np.array([full_data_median, actual_year, raw_years, actual_year_no_None, raw_data[0], mean_clim, forecast, current_year_fct, raw_data[-1]])
 
 	#dek_data = open('./datapath/output_snack', 'wb') #to save whole data separated in dekads [n_locations, n_years, 36]. Only takes completed years
 	#pickle.dump(output, dek_data)
 	#dek_data.close()
 
-	return output # np.array([full_data_median, actual_year, raw_years])
+	return output 
 
 ##############################################################################################################################################
 
@@ -669,10 +669,15 @@ def outlook_calc(endSeasonRow, stats):
 
 def scenario_calc(scenarios, endSeasonRow):
 
+	scen = []; yearsNum = len(endSeasonRow[0])
 	for i in np.arange(0, len(scenarios), 1):
-		for j in np.arange(endSeasonRow[0][0]):
 
-			subject = scenarios[i]
+		subject = scenarios[i]; a = 0; b = 0
+		if subject == None or subject == -1:
+			scen.append([None]*2)
+			continue
+
+		for j in np.arange(0, yearsNum, 1):
 
 			if subject >= endSeasonRow[i][j]:
 				a += 1
@@ -680,7 +685,11 @@ def scenario_calc(scenarios, endSeasonRow):
 			elif subject < endSeasonRow[i][j]:
 				b += 1
 
-	pass
+		above = (a/yearsNum)*100
+		below = (b/yearsNum)*100
+		scen.append([above, below])
+
+	return scen
 
 ##############################################################################################################################################
 
@@ -713,13 +722,16 @@ def round2Darray(inputA):
 		op = []
 		output.append(op)
 		for j in np.arange(0, len(inputA[0]), 1):
-			out = int(round(inputA[i][j]))
-			op.append(out)
+			if inputA[i][j] == None:
+				op.append(None)
+			else:
+				out = int(round(inputA[i][j]))
+				op.append(out)
 
 	return np.array(output)
 
 ##############################################################################################################################################
-def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, analogRank, output_snack, accumulations, stamp, stamp2, stamp3, dek_dictionary, analogs_dictionary, dirName, saveStatus, dispStatus, fctStatus):
+def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, analogRank, output_snack, accumulations, stamp, stamp2, stamp3, dek_dictionary, analogs_dictionary, dirName, saveStatus, dispStatus, fctStatus, disp_scn):
 
 	#================================THIS SPACE IS TO PREPARE DATA TO BE LAUNCHED=====================================
 
@@ -741,6 +753,11 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 
 	endSeasonRow = stamp3[4]
 	endSeasonRow_full = stamp3[5]
+
+	#scenarios
+	scenarios = output_snack[-1]
+	clim_scenario = round2Darray(scenario_calc(scenarios, endSeasonRow))
+	analog_scenario = round2Darray(scenario_calc(scenarios, endSeasonRow_full))
 	
 
 	#ADITIONAL CALC IS MADE HERE TO GET OUTLOOK:
@@ -858,13 +875,11 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 		ensemble_plot.set_prop_cycle(cycler('color', colorPalette))
 
 		#AVG AND CURRENT RAINFALL SEASON:
-		avg_plot.plot(np.arange(0, 36, 1), output_snack[5][i], color = 'r', lw = 4, label = 'LT Avg [climatology based]: {init} - {end}'.format(init = init_clim, end = end_clim))
+		avg_plot.plot(np.arange(0, 36, 1), output_snack[5][i], color = 'r', lw = 4, label = 'LT. Avg. (Climatology: {init} - {end})'.format(init = init_clim, end = end_clim))
 		avg_plot.bar(np.arange(0, len(output_snack[3][0]), 1), output_snack[3][i], color = 'b', label = 'Current year: {yr}'.format(yr = end_yr))
 		
 		if fctStatus == True:
 			avg_plot.bar([len(np.arange(0, len(output_snack[3][0]), 1))], output_snack[6][i], color = 'm', label = 'Forecasted dekad')
-
-
 
 		avg_plot.legend()
 
@@ -948,15 +963,19 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 
 
 		#================================================TABLES==================================================
+		if disp_scn == True:
+			k = 0
+		else: 
+			k = 0.08
 		#ALL TABLES WILL NEED THE SAME COLUMNS: [ANALOGS, ALL YEARS]
 		#SETUP
 		Asummary.set_title('Summary Statistics') #{a} - {b}'.format(a = self.init_dek, b = self.end_dek))
 		Asummary.axis('tight')
 		Asummary.axis('off')
 		col = ('Analog years', 'Climatology')
-		colC = ['coral']*len(col)
+		colC = ['silver']*len(col)
 		rowC = ['lightsteelblue']
-		headerColor = ['palegreen']
+		headerColor = ['gold']
 
 		#=======================ANALOG YEARS RANKING TABLE===================
 
@@ -973,7 +992,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 						colLabels = ['Closest analog years'], 
 						cellText = analog_data, 
 						cellLoc = 'center', 
-						bbox = [0.1, 0.82, 0.8, 0.18], 
+						bbox = [0.1, 0.82 - k, 0.8, 0.18], 
 						colColours = colC, 
 						rowColours = rowC*len(analog_row))
 
@@ -985,34 +1004,34 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 
 
 	
-		#HEADER
-		Asummary.table(cellText = [[None]], colLabels = ['Climatological Analysis'], bbox = [0.2, 0.68, 0.7, 0.12 ], colColours = headerColor)
+		#HEADER standard
+		Asummary.table(cellText = [[None]], colLabels = ['Climatological Analysis'], bbox = [0.2, 0.68 - k, 0.7, 0.12 ], colColours = headerColor)
 
 
-		row = ['Seasonal Average', 'Seasonal Std. Dev.', 'Seasonal Median']
+		row = ['Seasonal Average', 'Seasonal STDEV.', 'Seasonal Median']
 		txt = [[LTAvalP, LTAval], 
 				[analog_stats1[i][1], seasonalStats[i][1]], 
 				[analog_stats1[i][2], seasonalStats[i][2]]]
 
-		Asummary.table(rowLabels = row, colLabels = col, cellText = txt, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.60, 0.7, 0.15], colColours = colC, rowColours = rowC*len(row))
+		Asummary.table(rowLabels = row, colLabels = col, cellText = txt, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.60 - k, 0.7, 0.15], colColours = colC, rowColours = rowC*len(row))
 
 		#====================ASSESSMENT AT CURRENT DEKAD TABLE===================
 		#header
-		Asummary.table(cellText = [[None]], colLabels = ['Assessment at current dekad'], bbox = [0.2, 0.46, 0.7, 0.12 ], colColours = headerColor)
+		Asummary.table(cellText = [[None]], colLabels = ['Assessment at current dekad'], bbox = [0.2, 0.46 - k, 0.7, 0.12 ], colColours = headerColor)
 
 		assessmentRow = ['Total at current Dek.', 'LTA Value', 'Current Dek. LTA [%]']
 		assessmentData = [[current_yr_accum[i][-1], current_yr_accum[i][-1]],
 							[analog_stats1[i][3], seasonalStats[i][-1]], 
 									[LTAcalcs[i][0], LTAcalcs[i][1]]]
 
-		Asummary.table(rowLabels = assessmentRow, colLabels = col, cellText = assessmentData, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.38, 0.7, 0.15], colColours = colC, rowColours = rowC*len(row))
+		Asummary.table(rowLabels = assessmentRow, colLabels = col, cellText = assessmentData, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.38 - k, 0.7, 0.15], colColours = colC, rowColours = rowC*len(row))
 		
 		#====================CURRENT YEAR ANALYSIS [ENSEMBLE] TABLE===================
 
 		#HEADER
-		Asummary.table(cellText = [[None]], colLabels = ['Projection to the end of the season {yr}'.format(yr = end_yr)], bbox = [0.2, 0.24, 0.7, 0.12 ], colColours = headerColor)
+		Asummary.table(cellText = [[None]], colLabels = ['Projection to the end of the season'], bbox = [0.2, 0.24 - k, 0.7, 0.12 ], colColours = headerColor)
 
-		row_B = ['Ensemble Average', 'Ensemble Std. Dev.', 'Ensemble Median', '33rd. Percentile', '67th. Percentile', 'LTA Value', 'End of Season LTA %']
+		row_B = ['Ensemble Average', 'Ensemble STDEV.', 'Ensemble Median', '33rd. Percentile', '67th. Percentile', 'LTA Value', 'End of season LTA %']
 		data_B =[[ensembleStats[i][0], ensembleStatsFull[i][0]], 
 				[ensembleStats[i][1], ensembleStatsFull[i][1]], 
 				[ensembleStats[i][2], ensembleStatsFull[i][2]], 
@@ -1021,32 +1040,35 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 				[LTAvalP, LTAval], 
 				[LTAcalcs[i][2], LTAcalcs[i][3]]]
 
-		Asummary.table(rowLabels = row_B, colLabels = col, cellText = data_B, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.01, 0.7, 0.3], colColours = colC, rowColours = rowC*len(row_B))
+		Asummary.table(rowLabels = row_B, colLabels = col, cellText = data_B, loc = 'center', cellLoc = 'center', bbox = [0.2, 0.01 - k, 0.7, 0.3], colColours = colC, rowColours = rowC*len(row_B))
 
 		#===================OUTLOOK PROBABILITY TABLE=======================
 
 		#HEADER
-		Asummary.table(cellText = [[None]], colLabels = ['Outlook: Probability at the end of season'], bbox = [0.2, -0.13, 0.7, 0.12 ], colColours = headerColor)
+		Asummary.table(cellText = [[None]], colLabels = ['Outlook: Probability at the end of season'], bbox = [0.2, -0.13 - k, 0.7, 0.12 ], colColours = headerColor)
 
 		outlook_row = ['Above normal', 'Normal', 'Below normal']
 		data = [[round(outlook_E[i][0]), round(outlook[i][0])], [round(outlook_E[i][1]), round(outlook[i][1])], [round(outlook_E[i][2]), round(outlook[i][2])]]
-		Asummary.table(rowLabels = outlook_row, colLabels = col, cellText = data, cellLoc = 'center', bbox = [0.2, -0.21, 0.7, 0.15], colColours = colC, rowColours = rowC*len(outlook_row))
+		Asummary.table(rowLabels = outlook_row, colLabels = col, cellText = data, cellLoc = 'center', bbox = [0.2, -0.21 - k, 0.7, 0.15], colColours = colC, rowColours = rowC*len(outlook_row))
+
+		#===================SCENARIOS TABLE=======================
+
+		if disp_scn == True:
+
+			if analog_scenario[i][0] == 0 and analog_scenario[i][1] == 0:
+				pass
+
+			else:
+				Asummary.table(cellText = [[None]], colLabels = ['Prob. of x mm at the end of season'], bbox = [0.2, -0.35, 0.7, 0.12 ], colColours = headerColor)
+				scenario_row = ['Above [%]', 'Below [%]']
+				info = [[analog_scenario[i][0], clim_scenario[i][0]], [analog_scenario[i][1], clim_scenario[i][1]]]
+				Asummary.table(rowLabels = scenario_row, colLabels = col, cellText = info, cellLoc = 'center', bbox = [0.2, -0.4, 0.7, 0.12], colColours = colC, rowColours = rowC*len(outlook_row))
 
 		fig.align_labels()
 		if saveStatus == True:
 
 			#fig.savefig('{key}{dir}'.format(dir = dirName, key = output_snack[4][i]))
 			fig.savefig('{dir}/{key}_report'.format(dir = dirName, key = output_snack[4][i]))
-
-		#===================SCENARIOS TABLE=======================
-
-		Asummary.table(cellText = [[None]], colLabels = ['Prob. of x mm at the end of season'], bbox = [0.2, -0.35, 0.7, 0.12 ], colColours = headerColor)
-
-		scenario_row = ['Above', 'Below']
-		info = [['None', 'None'], ['None', 'None']]
-		Asummary.table(rowLabels = scenario_row, colLabels = col, cellText = info, cellLoc = 'center', bbox = [0.2, -0.4, 0.7, 0.12], colColours = colC, rowColours = rowC*len(outlook_row))
-
-
 
 	if dispStatus == True:
 		return plt.show()
@@ -1085,7 +1107,6 @@ class mainFrame():
 		self.bg = Canvas(master, width = 800, height = 100 )
 		self.bg.pack()
 		self.cv_img = self.bg.create_image(0, 0, image = self.background, anchor = 'nw')
-
 		self.frame = Frame(master, width = 500, height = 400)
 		self.frame.pack()
 
@@ -1097,8 +1118,9 @@ class mainFrame():
 		self.dekad_lst = ['1-Jan', '2-Jan', '3-Jan', '1-Feb', '2-Feb', '3-Feb', '1-Mar', '2-Mar', '3-Mar', '1-Apr', '2-Apr', '3-Apr', '1-May', '2-May', '3-May', '1-Jun',
 		 					'2-Jun', '3-Jun', '1-Jul', '2-Jul', '3-Jul', '1-Aug', '2-Aug', '3-Aug', '1-Sep', '2-Sep', '3-Sep', '1-Oct', '2-Oct', '3-Oct', '1-Nov', '2-Nov', 
 		 					'3-Nov', '1-Dec', '2-Dec', '3-Dec']
+
 		self.analogs_lst = np.arange(1, 40, 1)
-		self.ranklst = np.arange(2, 7, 1)
+		self.ranklst = np.arange(2, 5, 1)
 		self.variable_analogs_lst = IntVar(self.frame)
 		self.variable_init_dekad = StringVar(self.frame)
 		self.variable_end_dekad = StringVar(self.frame)
@@ -1106,8 +1128,9 @@ class mainFrame():
 
 		self.radio_button = IntVar(self.frame)
 		self.variable_rank = IntVar(self.frame)
-		self.variable_rank.set('')
-		self.variable_init_dekad.set('')
+		self.variable_rank.set(0)
+		self.variable_init_dekad.set(0)
+		self.variable_end_dekad.set(0)
 
 		self.out = []
 		self.fileOpen = ''
@@ -1115,19 +1138,19 @@ class mainFrame():
 		#CHECKBUTTONS
 		self.check = IntVar(self.frame)
 		self.disp = IntVar(self.frame)
-		self.scenarios = IntVar(self.frame)
+		self.scenario = IntVar(self.frame)
 
 		#climatology
 		self.variable_init_clim = IntVar(self.frame)
 		self.variable_end_clim = IntVar(self.frame)
-		self.variable_init_clim.set('')
-		self.variable_end_clim.set('')
-		self.variable_analogs_lst.set('')
+		self.variable_init_clim.set(0)
+		self.variable_end_clim.set(0)
+		self.variable_analogs_lst.set(0)
 
 ##############################################################################################################################################
 
 		#LABELS
-		self.label0 = Label(self.frame, text = 'Set up climatology window')
+		self.label0 = Label(self.frame, text = 'Set up climatological window')
 		self.label0.grid(row = 1, column = 2, columnspan = 4)
 
 		self.label_analogSettings = Label(self.frame, text = 'Analog years settings')
@@ -1244,7 +1267,7 @@ class mainFrame():
 		self.disp_check = Checkbutton(self.frame, text = 'Display reports', variable = self.disp)
 		self.disp_check.grid(row = 4, column = 0, sticky = W)
 
-		self.scenarios = Checkbutton(self.frame, text = 'Include scenarios', variable = self.scenarios)
+		self.scenarios = Checkbutton(self.frame, text = 'Include scenarios', variable = self.scenario)
 		self.scenarios.grid(row = 5, column = 0, sticky = W)
 
 ##############################################################################################################################################
@@ -1308,46 +1331,47 @@ class mainFrame():
 		init_yr = int(self.out[1][0][0:4])
 		end_yr = int(self.out[1][-1][0:4])
 		dek_dictionary = self.dek_dictionary
+
 		yrsWindow = len(np.arange(init_yr, end_yr, 1))
 		if self.radio_button.get() == 1:
 				computeOpt = False
 		else:
 			computeOpt = True
 
-	
+		#exceptions
 		if self.out == []:
 			tkinter.messagebox.showerror('No dataset loaded', 'You must input a dataset first')
 			return 0
 
-		elif self.dek_dictionary[fst_dek] >= self.dek_dictionary[lst_dek]:
+		if self.dek_dictionary[fst_dek] >= self.dek_dictionary[lst_dek]:
 			tkinter.messagebox.showerror('Error while computing season', 'From-behind seasonal analysis is not allowed')
 			return 0
 
-		elif init_clim >= end_clim:
+		if init_clim >= end_clim:
 			tkinter.messagebox.showerror('Error while computing climatology', 'End year must be greater than init. year' )
 			return 0
 
-		elif init_clim < init_yr:
+		if init_clim < init_yr:
 			tkinter.messagebox.showerror('Error while computing climatology', 'Initial year cannot be less than {} for this dataset'.format(init_yr))
 			return 0
-		elif end_clim > end_yr:
+		if end_clim > end_yr:
 			tkinter.messagebox.showerror('Error while computing climatology', 'End year cannot be greater than {} for this dataset'.format(end_yr))
 			return 0
 
-		elif analog_num == 0 or analog_num == 1:
+		if analog_num == 0 or analog_num == 1:
 			tkinter.messagebox.showerror('warning', 'More than 1 analog year must be chosen')
 			return 0
 
-		elif analog_num > yrsWindow:
+		if analog_num > yrsWindow:
 			tkinter.messagebox.showerror('Choice exceeds available analogs', 'There are {} years as Max.'.format(yrsWindow))
 			return 0
 
-		elif analogRank > 10:
-			tkinter.messagebox.showerror('Rank position limit reached', 'Max. analog years rank to show is 10 and you chose {}'. format(analogRank))
+		if analogRank > 4:
+			tkinter.messagebox.showerror('Rank position limit reached', 'Max. analog years rank to show is 4 and you chose {}'. format(analogRank))
 			return 0
 
-		elif analogRank == '':
-			tkinter.messagebox.showerror('Error in rank selection', 'Rank selection box cannot be empty')
+		if analogRank == 0:
+			tkinter.messagebox.showerror('Error in rank selection', 'Analog years rank menu cannot be empty')
 			return 0
 
 		try:
@@ -1373,12 +1397,18 @@ class mainFrame():
 				status = False
 				curr_directory = None
 
-			
+			#display reports condition
 			if self.disp.get() == 1:
 				disp_rep = True
 
 			else:
 				disp_rep = False
+
+			#scenarios condition
+			if self.scenario.get() == 1:
+				disp_scn = True
+			else:
+				disp_scn = False
 
 
 			output_snack = get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim, computeOpt)
@@ -1392,7 +1422,7 @@ class mainFrame():
 			stamp2 = seasonal_accumulations(init_clim, end_clim, accumulations)
 			stamp3 = ensemble_plotting(init_yr, end_yr, lst_dek, init_clim, end_clim, output_snack, accumulations, analogs_dictionary, dek_dictionary)
 			
-			plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank, output_snack, accumulations, stamp, stamp2, stamp3, dek_dictionary, analogs_dictionary, curr_directory, status, disp_rep, computeOpt)
+			plot = generate_reports(init_yr, end_yr, fst_dek, lst_dek, init_clim, end_clim, analogRank, output_snack, accumulations, stamp, stamp2, stamp3, dek_dictionary, analogs_dictionary, curr_directory, status, disp_rep, computeOpt, disp_scn)
 
 			tkinter.messagebox.showinfo('Status', 'Done! Reports computed')
 
@@ -1410,6 +1440,7 @@ class mainFrame():
 		self.init_clim.set('')
 		self.end_clim.set('')
 		self.rank_menu.set('')
+		#self.fileOpen.set('')
 		
 		tkinter.messagebox.showinfo('status', 'All cleared')
 
