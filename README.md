@@ -1,6 +1,3 @@
 # SMPG_TOOL
 
-changelog:
-
--fixed button 
--Added option a
+Currently in beta 1.4 version
