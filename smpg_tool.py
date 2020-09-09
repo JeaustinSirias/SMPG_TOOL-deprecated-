@@ -50,7 +50,6 @@ def compute_median(init_yr, end_yr, data_in, fctStatuts): #data_in is the raw in
 		current_year_None = np.array(current_year + k) #to fill missing dekads with null characters
 		current_year_None_fct = np.array(current_year_fct + k) #to fill missing dekads with null characters
 
-
 	else:
 		current_year = list(data_in[dek_number:])
 		current_year_None_fct = [None]
@@ -59,9 +58,6 @@ def compute_median(init_yr, end_yr, data_in, fctStatuts): #data_in is the raw in
 		current_year_None = np.array(current_year + k) #to fill missing dekads with null characters
 
 	fctDek = [data_in[-1]]
-
-	#k = [None]*(36 - len(current_year))
-	#current_year_None = np.array(current_year + k) #to fill missing dekads with null characters
 
 	#OUTPUTS
 	return np.array([LT_mean, current_year_None, store_dek, np.array(current_year), fctDek, current_year_None_fct])
@@ -90,7 +86,7 @@ def get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim, fc
 	#****************************************CLIMATOLOGY********************************
 	#we're gonna setup a way to fix climatology. For this we'll make
 	#a dictionary with all years gotten in the header like: {1985:0, 1986:1, ... 2018:33}
-	#so when user inputs its climatology window, program will user bouds as passwords in this dictionary
+	#so when user inputs its climatology window, program will use bouds as passwords in this dictionary
 
 	year_1 = int(raw_data[1][0][0:4]) #absolute first year
 	year_2 = int(raw_data[1][-1][0:4]) #absolute last year
@@ -190,11 +186,7 @@ def rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek, dek_dictionary, ou
 					if len(acumulado_ano_actual) == len(linspace):
 						n = 0
 
-		#fctAcummulation = np.array(fctAcummulation)
-
-
 	acumulado_por_estacion = np.array(acumulado_por_estacion)
-
 	return np.array([skim, acumulado_por_estacion.transpose(), np.array(skim_dictionary), np.array(fctAcummulation).transpose()])
 
 ##############################################################################################################################################
@@ -396,7 +388,6 @@ def seasonal_accumulations_plotting(accumulations, analogs_dictionary): #a funct
 	#statics = np.array(statics)
 	
 	return [analog_curves, stats, analog_yrs]
-	#return LTM[0][currentYearLastDek]
 
 ##############################################################################################################################################
 	
@@ -804,8 +795,6 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 	LTAcalcs = np.array(LTAcalcs)
 	LTAcalcsT = LTAcalcs.transpose()
 
-
-
 	ok_E = outlook.transpose()
 	stats1 = seasonalStats.transpose()
 	stats2 = ensembleStatsFull.transpose()
@@ -822,37 +811,36 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 	colNames = ['Code', 'pctofavgatdek', 'pctofavgatEOS', 'Above', 'Normal', 'Below']
 	frame = pd.DataFrame(datas, columns = colNames)
 
-
-	
 	#STATISTICS SUMMARY
 	advancedData = {'Code': output_snack[4],
 						'Seasonal Avg': stats1[0],
 							'Seasonal StDev': stats1[1],
 								'Seasonal Median': stats1[2],
-									'Total at current Dek': currentDekTot[-1],
-										'LTA Value': stats1[-1],
-											'LTA Percentage': LTAcalcsT[1],
-												'Ensemble Avg': ensembleStatsT[0],
-													'Ensemble StDev': ensembleStatsT[1],
-														'Ensemble Median': ensembleStatsT[2],
-															'E_33rd. Perc.': ensembleStatsT[3],
-																'E_67th. Perc': ensembleStatsT[4],
-																	'E_LTA Value': stats1[0],
-																		'E_LTA Perc': LTAcalcsT[3],
-																			'Outlook: Above': ok_E[0],
-		 																		'Outlook: Normal': ok_E[1],
-		 																			'Outlook: Below': ok_E[2]
+									'Seasonal 33rd perct': stats1[3],
+										'Seasonal 67th perct': stats1[4],
+											'Total at current Dek': currentDekTot[-1],
+												'LTA Value': stats1[-1],
+													'LTA Percentage': LTAcalcsT[1],
+														'Ensemble Avg': ensembleStatsT[0],
+															'Ensemble StDev': ensembleStatsT[1],
+																'Ensemble Median': ensembleStatsT[2],
+																	'E_33rd. Perc.': ensembleStatsT[3],
+																		'E_67th. Perc': ensembleStatsT[4],
+																			'E_LTA Value': stats1[0],
+																				'E_LTA Perc': LTAcalcsT[3],
+																					'Outlook: Above': ok_E[0],
+				 																		'Outlook: Normal': ok_E[1],
+				 																			'Outlook: Below': ok_E[2]
 
 					}
 
-	colNamesAd = ['Code', 'Seasonal Avg', 'Seasonal StDev', 'Seasonal Median', 
+	colNamesAd = ['Code', 'Seasonal Avg', 'Seasonal StDev', 'Seasonal Median', 'Seasonal 33rd perct', 'Seasonal 67th perct',
 							'Total at current Dek', 'LTA Value', 'LTA Percentage', 'Ensemble Avg', 
 								'Ensemble StDev', 'Ensemble Median', 'E_33rd. Perc.', 'E_67th. Perc', 'E_LTA Value', 
 									'E_LTA Perc', 'Outlook: Above', 'Outlook: Normal', 'Outlook: Below']
 
 	frameAd = pd.DataFrame(advancedData, columns = colNamesAd)
 	
-
 	if saveStatus == True:
 		AnalogsTab(analogsDict, codeNames, dirName)
 		frame.to_csv('{dir}/summary.csv'.format(dir = dirName), index = False)
@@ -896,12 +884,15 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 	 			'2-Jun', '3-Jun', '1-Jul', '2-Jul', '3-Jul', '1-Aug', '2-Aug', '3-Aug', '1-Sep', '2-Sep', '3-Sep', '1-Oct', '2-Oct', '3-Oct', '1-Nov', '2-Nov', '3-Nov', '1-Dec', '2-Dec', '3-Dec'), rotation = 'vertical')
 		avg_plot.grid()
 
-
 		#SEASONAL ACCUMULATIONS AND ENSEMBLE
 		for j in yrSize:
 
 			#SEASONAL ACUMULATIONS
-			seasonal_accum_plot.plot(seasonSize, analog_curves[i][j], lw = 1.5, label = '{yr}'.format(yr = analog_yrs[i][j])) #accumulation curves
+			if analog_yrs[i][j] == end_yr - 1:
+				seasonal_accum_plot.plot(seasonSize, analog_curves[i][j], lw = 3.5, color = 'blue', label = '{yr}'.format(yr = analog_yrs[i][j])) #accumulation curves
+
+			else:
+				seasonal_accum_plot.plot(seasonSize, analog_curves[i][j], lw = 1.5, label = '{yr}'.format(yr = analog_yrs[i][j])) #accumulation curves
 
 			#ENSEMBLE
 			ensemble_plot.plot(seasonSize, curves_E[i][j], lw = 1.5, label = '{yr}'.format(yr = analog_yrs[i][j]))
@@ -997,13 +988,9 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 						rowColours = rowC*len(analog_row))
 
 		#====================CLIMATOLOGICAL ANALYSIS TABLE===================
-
-
 		LTAvalP = analog_stats1[i][0]
 		LTAval = seasonalStats[i][0]
 
-
-	
 		#HEADER standard
 		Asummary.table(cellText = [[None]], colLabels = ['Climatological Analysis'], bbox = [0.2, 0.68 - k, 0.7, 0.12 ], colColours = headerColor)
 
@@ -1059,7 +1046,7 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 				pass
 
 			else:
-				Asummary.table(cellText = [[None]], colLabels = ['Prob. of x mm at the end of season'], bbox = [0.2, -0.35, 0.7, 0.12 ], colColours = headerColor)
+				Asummary.table(cellText = [[None]], colLabels = ['Prob. of [{}] mm at the end of season'.format(round(scenarios[i]))], bbox = [0.2, -0.35, 0.7, 0.12 ], colColours = headerColor)
 				scenario_row = ['Above [%]', 'Below [%]']
 				info = [[analog_scenario[i][0], clim_scenario[i][0]], [analog_scenario[i][1], clim_scenario[i][1]]]
 				Asummary.table(rowLabels = scenario_row, colLabels = col, cellText = info, cellLoc = 'center', bbox = [0.2, -0.4, 0.7, 0.12], colColours = colC, rowColours = rowC*len(outlook_row))
@@ -1132,7 +1119,7 @@ class mainFrame():
 		self.variable_init_dekad.set(0)
 		self.variable_end_dekad.set(0)
 
-		self.out = []
+		self.out = None
 		self.fileOpen = ''
 
 		#CHECKBUTTONS
@@ -1326,10 +1313,15 @@ class mainFrame():
 
 	def gen_rep(self, fst_dek, lst_dek, init_clim, end_clim, analog_num, analogRank):
 
+		#first condition to run right
+		if self.out == None:
+			tkinter.messagebox.showerror('No dataset loaded', 'You must input a dataset first')
+			return 0
+
 		#params
 		raw_data = self.out
-		init_yr = int(self.out[1][0][0:4])
-		end_yr = int(self.out[1][-1][0:4])
+		init_yr = int(raw_data[1][0][0:4])
+		end_yr = int(raw_data[1][-1][0:4])
 		dek_dictionary = self.dek_dictionary
 
 		yrsWindow = len(np.arange(init_yr, end_yr, 1))
@@ -1339,9 +1331,6 @@ class mainFrame():
 			computeOpt = True
 
 		#exceptions
-		if self.out == []:
-			tkinter.messagebox.showerror('No dataset loaded', 'You must input a dataset first')
-			return 0
 
 		if self.dek_dictionary[fst_dek] >= self.dek_dictionary[lst_dek]:
 			tkinter.messagebox.showerror('Error while computing season', 'From-behind seasonal analysis is not allowed')
@@ -1354,6 +1343,7 @@ class mainFrame():
 		if init_clim < init_yr:
 			tkinter.messagebox.showerror('Error while computing climatology', 'Initial year cannot be less than {} for this dataset'.format(init_yr))
 			return 0
+
 		if end_clim > end_yr:
 			tkinter.messagebox.showerror('Error while computing climatology', 'End year cannot be greater than {} for this dataset'.format(end_yr))
 			return 0
@@ -1371,7 +1361,19 @@ class mainFrame():
 			return 0
 
 		if analogRank == 0:
-			tkinter.messagebox.showerror('Error in rank selection', 'Analog years rank menu cannot be empty')
+			tkinter.messagebox.showerror('Missing value detected', 'Analog years rank menu cannot be empty')
+			return 0
+
+		if init_clim == 0:
+			tkinter.messagebox.showerror('Missing value detected', 'Initial year in Climatology cannot be empty')
+			return 0
+
+		if end_clim == '':
+			tkinter.messagebox.showerror('Missing value detected', 'End year in climatology cannot be empty')
+			return 0
+
+		if self.check.get() == 0 and self.disp.get() == 0:
+			tkinter.messagebox.showerror('No action to compute', 'You should check at leat <Save reports> before.')
 			return 0
 
 		try:
@@ -1381,7 +1383,6 @@ class mainFrame():
 					os.chdir(dir_name) #changes your current directory
 					curr_directory = os.getcwd()
 
-				
 					#dir_name = filedialog.asksaveasfile(initialfile = 'report',title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
 					#os.chdir(dir_name) #changes your current directory
 					#curr_directory = dir_name
@@ -1433,27 +1434,32 @@ class mainFrame():
 
 	def clearFiles(self):
 
+		'''
 		#clear menus:
 		self.analog_menu.set('')
 		self.start_dekad.set('')
-		self.end_dekad.set('')
+		self.end_dekad.set('')``
 		self.init_clim.set('')
 		self.end_clim.set('')
 		self.rank_menu.set('')
 		#self.fileOpen.set('')
 		
 		tkinter.messagebox.showinfo('status', 'All cleared')
-
-		#python = sys.executable
-		#os.execl(python, python, *sys.argv)
+		'''
+		python = sys.executable
+		os.execl(python, python, *sys.argv)
 
 ##############################################################################################################################
 
 	def openPolicies(self, master):
+		import webbrowser 
+
 		window = Toplevel(master, width = 300, height = 400)
 		window.title('About SMPG TOOL')
 
-		img = PhotoImage(file='./earth.gif')
+
+		img = PhotoImage(file='./res/earth.gif')
+		window.iconphoto(False, img)
 		labelLogo = Label(window, image = img)
 		labelLogo.grid(row = 0, column = 1)
 		
@@ -1464,9 +1470,13 @@ class mainFrame():
 		version = Label(window, text = 'Licence pending \n Version: Beta 1.3', font = ('Arial', 12), justify = CENTER)
 		version.grid(row = 2, column = 1, pady = 10)
 
-		tutorial = Label(window, text = 'For a quick tutorial checkout: \n github.com/JeaustinSirias/SMPG_TOOL', font = ('Arial', 11), justify = CENTER)
-		tutorial.grid(row = 3, column = 1, pady = 10)
+		#tutorial = Label(window, text = 'For a quick tutorial checkout: \n github.com/JeaustinSirias/SMPG_TOOL', font = ('Arial', 11), justify = CENTER)
+		#tutorial.grid(row = 3, column = 1, pady = 10)
 		
+		tutorial_button = Button(window, text = 'Tutorial/help', command = lambda: webbrowser.open_new(r'./documentacion.pdf'))
+		tutorial_button.grid(row = 3, column = 1, pady = 10)
+
+
 		k = j
 		
 
