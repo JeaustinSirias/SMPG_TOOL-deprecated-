@@ -3,11 +3,11 @@ This is a **functional** python stable version of the original Excel-implemented
 
 
 ### RUNNING SCRIPT
-This code actually needs many dependences (such as NumPy, SciPy, Tkinkter, Matplotlib, etc). Verifiy that you actually have these modules already installed in your computer.
+This code actually needs many dependences (such as NumPy, SciPy, Tkinkter, Matplotlib, etc). Verifiy that you actually have these modules already installed in your computer. The project is not a python library yet. I'm working on it.
 
 **1.** First clone this repo in a local directory inside your computer by using the next instruction in your command window:
 ```
-$ git clone https://github.com/JeaustinSirias/SMPG_TOOL
+$ git clone https://github.com/JeaustinSirias/SMPG_TOOL.git
 ```
 **2.** Move to the cloned directory by using your command window and type:
 
