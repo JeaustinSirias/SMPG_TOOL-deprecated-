@@ -1,3 +1,6 @@
+#!/usr/bin/
+# -*- coding: utf-8 -*-
+
 from tkinter import *
 import tkinter.messagebox
 import ttk
@@ -15,7 +18,7 @@ import os
 import sys
 from tkinter import filedialog
 from cycler import cycler
-#import webbrowser
+import webbrowser
 
 
 
@@ -1051,11 +1054,11 @@ def generate_reports(init_yr, end_yr, init_dek, end_dek, init_clim, end_clim, an
 				info = [[analog_scenario[i][0], clim_scenario[i][0]], [analog_scenario[i][1], clim_scenario[i][1]]]
 				Asummary.table(rowLabels = scenario_row, colLabels = col, cellText = info, cellLoc = 'center', bbox = [0.2, -0.4, 0.7, 0.12], colColours = colC, rowColours = rowC*len(outlook_row))
 
-		fig.align_labels()
+		#fig.align_labels()
 		if saveStatus == True:
 
 			#fig.savefig('{key}{dir}'.format(dir = dirName, key = output_snack[4][i]))
-			fig.savefig('{dir}/{key}_report'.format(dir = dirName, key = output_snack[4][i]))
+			fig.savefig('{dir}/{key}_report'.format(dir = dirName, key = output_snack[4][i]), format = 'png')
 
 	if dispStatus == True:
 		return plt.show()
@@ -1069,7 +1072,7 @@ class mainFrame():
 
 	def __init__(self, master):
 
-		self.titulo = master.title('SMPG-TOOL [Beta 1.3] ')
+		self.titulo = master.title('SMPG Project v1.0.0 ')
 
 		self.dek_dictionary = {'1-Jan': 1, '2-Jan': 2, 
 								'3-Jan': 3, '1-Feb': 4, 
@@ -1090,10 +1093,10 @@ class mainFrame():
 								'3-Nov': 33, '1-Dec': 34, 
 								'2-Dec': 35, '3-Dec': 36}
 
-		self.background = PhotoImage(file = './res/background.gif')
+		#self.background = PhotoImage(file = 'background.gif')
 		self.bg = Canvas(master, width = 800, height = 100 )
 		self.bg.pack()
-		self.cv_img = self.bg.create_image(0, 0, image = self.background, anchor = 'nw')
+		#self.cv_img = self.bg.create_image(0, 0, image = self.background, anchor = 'nw')
 		self.frame = Frame(master, width = 500, height = 400)
 		self.frame.pack()
 
@@ -1115,9 +1118,9 @@ class mainFrame():
 
 		self.radio_button = IntVar(self.frame)
 		self.variable_rank = IntVar(self.frame)
-		self.variable_rank.set(0)
-		self.variable_init_dekad.set(0)
-		self.variable_end_dekad.set(0)
+		self.variable_rank.set('')
+		self.variable_init_dekad.set('')
+		self.variable_end_dekad.set('')
 
 		self.out = None
 		self.fileOpen = ''
@@ -1130,9 +1133,9 @@ class mainFrame():
 		#climatology
 		self.variable_init_clim = IntVar(self.frame)
 		self.variable_end_clim = IntVar(self.frame)
-		self.variable_init_clim.set(0)
-		self.variable_end_clim.set(0)
-		self.variable_analogs_lst.set(0)
+		self.variable_init_clim.set('')
+		self.variable_end_clim.set('')
+		self.variable_analogs_lst.set('')
 
 ##############################################################################################################################################
 
@@ -1221,10 +1224,10 @@ class mainFrame():
 		self.LT_avg_btn = Button(self.frame, text = 'GENERATE REPORTS', command = lambda: mainFrame.gen_rep(self,
 																												str(self.start_dekad.get()), 
 																												str(self.end_dekad.get()),
-																												int(self.init_clim.get()),
-																												int(self.end_clim.get()),
-																												int(self.analog_menu.get()), 
-																												int(self.rank_menu.get())))
+																												str(self.init_clim.get()),
+																												str(self.end_clim.get()),
+																												str(self.analog_menu.get()), 
+																												str(self.rank_menu.get())))
 																																																					
 		self.LT_avg_btn.grid(row = 2, column = 0, columnspan = 1)
 		
@@ -1318,6 +1321,22 @@ class mainFrame():
 			tkinter.messagebox.showerror('No dataset loaded', 'You must input a dataset first')
 			return 0
 
+		#second conditions
+		if init_clim == '' or end_clim == '':
+			tkinter.messagebox.showerror('Error', 'There are missing values in your setup')
+			return 0
+
+		elif analog_num == '' or analogRank == '':
+			tkinter.messagebox.showerror('Error', 'There are missing values in your setup')
+			return 0
+
+		else:
+			init_clim = int(init_clim)
+			end_clim = int(end_clim)
+			analog_num = int(analog_num)
+			analogRank = int(analogRank)
+
+	
 		#params
 		raw_data = self.out
 		init_yr = int(raw_data[1][0][0:4])
@@ -1331,15 +1350,6 @@ class mainFrame():
 			computeOpt = True
 
 		#exceptions
-
-		if self.dek_dictionary[fst_dek] >= self.dek_dictionary[lst_dek]:
-			tkinter.messagebox.showerror('Error while computing season', 'From-behind seasonal analysis is not allowed')
-			return 0
-
-		if init_clim >= end_clim:
-			tkinter.messagebox.showerror('Error while computing climatology', 'End year must be greater than init. year' )
-			return 0
-
 		if init_clim < init_yr:
 			tkinter.messagebox.showerror('Error while computing climatology', 'Initial year cannot be less than {} for this dataset'.format(init_yr))
 			return 0
@@ -1348,32 +1358,28 @@ class mainFrame():
 			tkinter.messagebox.showerror('Error while computing climatology', 'End year cannot be greater than {} for this dataset'.format(end_yr))
 			return 0
 
-		if analog_num == 0 or analog_num == 1:
-			tkinter.messagebox.showerror('warning', 'More than 1 analog year must be chosen')
+		if init_clim >= end_clim:
+			tkinter.messagebox.showerror('Error while computing climatology', 'End year must be greater than initial year' )
+			return 0
+
+		if self.dek_dictionary[fst_dek] >= self.dek_dictionary[lst_dek]:
+			tkinter.messagebox.showerror('Error while computing season', 'From-behind seasonal analysis is still not implemented')
+			return 0
+
+		if analog_num  <= 1:
+			tkinter.messagebox.showerror('Error', 'More than one analog year must be chosen')
 			return 0
 
 		if analog_num > yrsWindow:
-			tkinter.messagebox.showerror('Choice exceeds available analogs', 'There are {} years as Max.'.format(yrsWindow))
+			tkinter.messagebox.showerror('Error', 'More than {} analog years cannot be chosen for this dataset.'.format(yrsWindow))
 			return 0
 
 		if analogRank > 4:
-			tkinter.messagebox.showerror('Rank position limit reached', 'Max. analog years rank to show is 4 and you chose {}'. format(analogRank))
-			return 0
-
-		if analogRank == 0:
-			tkinter.messagebox.showerror('Missing value detected', 'Analog years rank menu cannot be empty')
-			return 0
-
-		if init_clim == 0:
-			tkinter.messagebox.showerror('Missing value detected', 'Initial year in Climatology cannot be empty')
-			return 0
-
-		if end_clim == '':
-			tkinter.messagebox.showerror('Missing value detected', 'End year in climatology cannot be empty')
+			tkinter.messagebox.showerror('Error', 'Max. analog years rank to show is 4 and you chose {}'. format(analogRank))
 			return 0
 
 		if self.check.get() == 0 and self.disp.get() == 0:
-			tkinter.messagebox.showerror('No action to compute', 'You should check at leat <Save reports> before.')
+			tkinter.messagebox.showerror('No actions to compute', 'You should check at least <Save reports> before computing your setup.')
 			return 0
 
 		try:
@@ -1411,7 +1417,7 @@ class mainFrame():
 			else:
 				disp_scn = False
 
-
+			#functions calls
 			output_snack = get_median_for_whole_data(raw_data, init_yr, end_yr, init_clim, end_clim, computeOpt)
 			accumulations = rainfall_accumulations(init_yr, end_yr, fst_dek, lst_dek, dek_dictionary, output_snack, computeOpt)
 
@@ -1449,42 +1455,44 @@ class mainFrame():
 		python = sys.executable
 		os.execl(python, python, *sys.argv)
 
+		
 ##############################################################################################################################
 
 	def openPolicies(self, master):
-		import webbrowser 
 
 		window = Toplevel(master, width = 300, height = 400)
-		window.title('About SMPG TOOL')
+		window.title('About SMPG Project')
 
-
-		img = PhotoImage(file='./res/earth.gif')
-		window.iconphoto(False, img)
-		labelLogo = Label(window, image = img)
-		labelLogo.grid(row = 0, column = 1)
+		#img = PhotoImage(file='icon.gif')
+		#window.iconphoto(False, img)
+		#labelLogo = Label(window, image = img)
+		#labelLogo.grid(row = 0, column = 1, pady = 15)
 		
 
-		title = Label(window, text = 'Seasonal Monitoring and Probability \n Generator Tool', font = ('Arial', 13), justify = CENTER)
+		title = Label(window, text = 'Seasonal Monitoring and Probability \n Generator (SMPG) Project v1.0.0', font = ('Arial', 13), justify = CENTER)
 		title.grid(row = 1, column = 1, pady = 10, padx = 25)
 
-		version = Label(window, text = 'Licence pending \n Version: Beta 1.3', font = ('Arial', 12), justify = CENTER)
+		version = Label(window, text = 'Licence Pending', font = ('Arial', 12), justify = CENTER)
 		version.grid(row = 2, column = 1, pady = 10)
 
 		#tutorial = Label(window, text = 'For a quick tutorial checkout: \n github.com/JeaustinSirias/SMPG_TOOL', font = ('Arial', 11), justify = CENTER)
 		#tutorial.grid(row = 3, column = 1, pady = 10)
 		
-		tutorial_button = Button(window, text = 'Tutorial/help', command = lambda: webbrowser.open_new(r'./documentacion.pdf'))
+		tutorial_button = Button(window, text = 'Tutorial/Help', command = lambda: webbrowser.open_new(r'./documentacion.pdf'))
 		tutorial_button.grid(row = 3, column = 1, pady = 10)
 
+		Update_button = Button(window, text = 'Update Center', command = lambda: tkinter.messagebox.showinfo('Update Center', 'You are up to date!'))
+		Update_button.grid(row = 4, column = 1, pady = 10)
 
-		k = j
+
+		#k = j
 		
 
 ##############################################################################################################################
 
-
+'''
 root = Tk()
-root.call('wm', 'iconphoto', root._w, PhotoImage(file = './res/earth.gif'))
+root.call('wm', 'iconphoto', root._w, PhotoImage(file = 'icon.gif'))
 main = mainFrame(root)
 root.mainloop()
-
+'''
