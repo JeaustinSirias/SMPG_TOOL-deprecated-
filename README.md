@@ -1,5 +1,5 @@
 # SMPG_TOOL
-This is a **functional** python stable version of the original Excel-implemented SMPG tool. New changes are under construction in another repository and they're comming next months. This code is not currently standarized according to PEP8, it's just a **functional experiment**, so it must not be considered as a professional project yet.
+This is a **functional** python stable version of the original Excel-implemented SMPG tool. New changes are under construction in another repository and they're comming next months. This code is not currently standarized according to PEP8, it's just a **functional experiment**, so it must not be considered as a professional project yet, however all original SMPG features are implemented and can be used.
 
 
 ### RUNNING SCRIPT
