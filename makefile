@@ -7,6 +7,8 @@ TEST = ./test/
 #*****************************************************************************
 run: SMPG
 
-SMPG:
-	python3 $(TEST)main.py
+SMPG:	
+	pip install -r requirements.txt \
+	&& python3 $(TEST)main.py
+
 

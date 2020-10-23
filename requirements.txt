@@ -1,2 +1,5 @@
-requests==3.6.9
-
+matplotlib==2.1.1
+numpy==1.13.3
+cycler==0.10.0
+scipy==0.19.1
+pandas==1.1.3
