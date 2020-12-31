@@ -1,9 +1,9 @@
 #!/usr/bin/
 # -*- coding: utf-8 -*-
-
 from tkinter import *
 import tkinter.messagebox
-import ttk
+from tkinter import ttk
+#from tkinter import ttk
 import numpy as np
 #import numpy.random.common
 #import numpy.random.bounded_integers
@@ -1440,20 +1440,18 @@ class mainFrame():
 
 	def clearFiles(self):
 
-		'''
+		
 		#clear menus:
 		self.analog_menu.set('')
 		self.start_dekad.set('')
-		self.end_dekad.set('')``
+		self.end_dekad.set('')
 		self.init_clim.set('')
 		self.end_clim.set('')
 		self.rank_menu.set('')
 		#self.fileOpen.set('')
-		
 		tkinter.messagebox.showinfo('status', 'All cleared')
-		'''
-		python = sys.executable
-		os.execl(python, python, *sys.argv)
+		#python = sys.executable
+		#os.execl(python, python, *sys.argv)
 
 		
 ##############################################################################################################################
